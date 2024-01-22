@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Models\Category;
 use App\Models\City;
 use App\Models\Interest;
+use App\Models\Organization;
+use App\Models\Promotion;
+use App\Models\PromotionImage;
 use App\Models\Speciality;
 use App\Models\University;
 use App\Models\User;
@@ -87,5 +91,33 @@ class ApiController extends BaseApiController
     public function interests()
     {
         return response()->json(Interest::all());
+    }
+
+    public function organizations()
+    {
+        return response()->json(Organization::all());
+    }
+
+    public function categories()
+    {
+        return response()->json(Category::all());
+    }
+
+    public function promotions()
+    {
+        $promotions = Promotion::orderBy('id', 'DESC')->get();
+        return response()->json($promotions);
+    }
+
+    public function getPromotionById($id)
+    {
+        $promotion = Promotion::findOrFail($id);
+        return response()->json($promotion);
+    }
+
+    public function getPromotionImagesById($id)
+    {
+        $promotion_images = PromotionImage::where(['promotion_id' => $id])->get();
+        return response()->json($promotion_images);
     }
 }

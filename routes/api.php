@@ -23,7 +23,11 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
     Route::get('interests', [ApiController::class, 'interests']);
 
     Route::group(['middleware' => 'auth:sanctum'], function(){
-
+        Route::get('organizations', [ApiController::class, 'organizations']);
+        Route::get('categories', [ApiController::class, 'categories']);
+        Route::get('promotions', [ApiController::class, 'promotions']);
+        Route::get('promotion/{id}', [ApiController::class, 'getPromotionById']);
+        Route::get('promotion/{id}/images', [ApiController::class, 'getPromotionImagesById']);
     });
 });
 
