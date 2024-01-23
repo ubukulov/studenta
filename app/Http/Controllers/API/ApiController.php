@@ -105,7 +105,9 @@ class ApiController extends BaseApiController
 
     public function promotions()
     {
-        $promotions = Promotion::orderBy('id', 'DESC')->get();
+        $promotions = Promotion::orderBy('id', 'DESC')
+            ->with('category', 'organization')
+            ->get();
         return response()->json($promotions);
     }
 

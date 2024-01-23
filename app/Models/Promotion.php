@@ -22,4 +22,14 @@ class Promotion extends Model
     {
         return $this->hasMany(PromotionImage::class, 'promotion_id');
     }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
 }
