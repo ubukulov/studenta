@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Category;
 use App\Models\City;
+use App\Models\Group;
 use App\Models\Interest;
 use App\Models\Organization;
 use App\Models\Promotion;
@@ -34,10 +35,16 @@ class ApiController extends BaseApiController
 
             $user = User::where('email', $request->email)->first();
 
+            if(!$user->tokens) {
+                $token = $user->createToken('API TOKEN')->plainTextToken;
+            } else {
+                $token = $user->currentAccessToken();
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => 'User Logged In Successfully',
-                'token' => $user->createToken("API TOKEN")->plainTextToken
+                'token' => $token
             ], 200);
 
         } catch (\Throwable $th) {
@@ -113,7 +120,9 @@ class ApiController extends BaseApiController
 
     public function getPromotionById($id)
     {
-        $promotion = Promotion::findOrFail($id);
+//        $promotion = Promotion::findOrFail($id);
+        $promotion = Promotion::with('category', 'organization')
+                ->findOrFail($id);
         return response()->json($promotion);
     }
 
@@ -121,5 +130,11 @@ class ApiController extends BaseApiController
     {
         $promotion_images = PromotionImage::where(['promotion_id' => $id])->get();
         return response()->json($promotion_images);
+    }
+
+    public function groups()
+    {
+        $groups = Group::with('user', 'group', 'images')->get();
+        return response()->json($groups);
     }
 }
