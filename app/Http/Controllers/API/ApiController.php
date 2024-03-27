@@ -139,6 +139,12 @@ class ApiController extends BaseApiController
         return response()->json($groups);
     }
 
+    public function getGroupById($id)
+    {
+        $group = Group::with('user', 'category', 'images', 'events')->findOrFail($id);
+        return response()->json($group);
+    }
+
     public function events()
     {
         $events = Event::with('user', 'group', 'images')->get();
