@@ -122,7 +122,7 @@ class ApiController extends BaseApiController
     public function getPromotionById($id)
     {
 //        $promotion = Promotion::findOrFail($id);
-        $promotion = Promotion::with('category', 'organization')
+        $promotion = Promotion::with('category', 'organization', 'images')
                 ->findOrFail($id);
         return response()->json($promotion);
     }
