@@ -134,7 +134,7 @@ class ApiController extends BaseApiController
 
     public function groups()
     {
-        $groups = Group::with('user', 'group', 'images')->get();
+        $groups = Group::with('user', 'category', 'images', 'events')->get();
         return response()->json($groups);
     }
 }
