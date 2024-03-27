@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Category;
 use App\Models\City;
+use App\Models\Event;
 use App\Models\Group;
 use App\Models\Interest;
 use App\Models\Organization;
@@ -136,5 +137,17 @@ class ApiController extends BaseApiController
     {
         $groups = Group::with('user', 'category', 'images', 'events')->get();
         return response()->json($groups);
+    }
+
+    public function events()
+    {
+        $events = Event::with('user', 'group', 'images')->get();
+        return response()->json($events);
+    }
+
+    public function getEventById($id)
+    {
+        $event = Event::with('user', 'group', 'images')->findOrFail($id);
+        return response()->json($event);
     }
 }

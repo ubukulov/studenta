@@ -36,6 +36,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
 
         # Группы
         Route::get('groups', [ApiController::class, 'groups']);
+
+        # Ивенты
+        Route::get('events', [ApiController::class, 'events']);
+        Route::get('event/{id}', [ApiController::class, 'getEventById']);
     });
 });
 
