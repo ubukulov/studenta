@@ -9,7 +9,8 @@ class GroupController extends BaseApiController
 {
     public function groups()
     {
-        $groups = Group::with('user', 'category', 'images', 'events')->get();
+        $groups = Group::with('user', 'category', 'images', 'events')
+            ->get();
         return response()->json($groups);
     }
 
