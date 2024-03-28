@@ -26,7 +26,7 @@ class GroupController extends BaseApiController
     public function getGroupById($id)
     {
         $group = Group::with('user', 'category', 'images', 'events')->findOrFail($id);
-        $group['subscribe'] = Group::isSubscribe($this->user->id, $id);
+        $group['subscribe'] = (Group::isSubscribe($this->user->id, $id)) ? true : false;
         return response()->json($group);
     }
 
@@ -82,11 +82,24 @@ class GroupController extends BaseApiController
         if(Group::isSubscribe($this->user->id, $group_id)) {
             return response()->json('Вы уже подписаны на эту группу', 400, [], JSON_UNESCAPED_UNICODE);
         } else {
-            GroupParticipant::create([
-                'user_id' => $this->user->id, 'group_id' => $group_id
-            ]);
-
+            Group::subscribe($this->user->id, $group_id);
             return response()->json('Вы успешно подписаны на группу', 200, [], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    public function unsubscribe(Request $request)
+    {
+        $request->validate([
+            'group_id' => 'required',
+        ]);
+
+        $group_id = $request->input('group_id');
+
+        if($group_participant = Group::isSubscribe($this->user->id, $group_id)) {
+            Group::unSubscribe($group_participant);
+            return response()->json('Вы успешно отписались от группы', 200, [], JSON_UNESCAPED_UNICODE);
+        } else {
+            return response()->json('Вы не подписаны на группу чтобы отписаться', 400, [], JSON_UNESCAPED_UNICODE);
         }
     }
 }

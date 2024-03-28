@@ -41,6 +41,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::post('group/store', [GroupController::class, 'store']);
         Route::match(['put', 'patch'], 'group/{id}/update', [GroupController::class, 'update']);
         Route::post('group/subscribe', [GroupController::class, 'subscribe']);
+        Route::post('group/unsubscribe', [GroupController::class, 'unsubscribe']);
 
         # Ивенты
         Route::get('events', [ApiController::class, 'events']);
