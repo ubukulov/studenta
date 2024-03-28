@@ -4,12 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Category;
 use App\Models\City;
-use App\Models\Event;
-use App\Models\Group;
 use App\Models\Interest;
 use App\Models\Organization;
-use App\Models\Promotion;
-use App\Models\PromotionImage;
 use App\Models\Speciality;
 use App\Models\University;
 use App\Models\User;
@@ -109,39 +105,5 @@ class ApiController extends BaseApiController
     public function categories()
     {
         return response()->json(Category::all());
-    }
-
-    public function promotions()
-    {
-        $promotions = Promotion::orderBy('size', 'DESC')
-            ->with('category', 'organization')
-            ->get();
-        return response()->json($promotions);
-    }
-
-    public function getPromotionById($id)
-    {
-//        $promotion = Promotion::findOrFail($id);
-        $promotion = Promotion::with('category', 'organization', 'images')
-                ->findOrFail($id);
-        return response()->json($promotion);
-    }
-
-    public function getPromotionImagesById($id)
-    {
-        $promotion_images = PromotionImage::where(['promotion_id' => $id])->get();
-        return response()->json($promotion_images);
-    }
-
-    public function events()
-    {
-        $events = Event::with('user', 'group', 'images')->get();
-        return response()->json($events);
-    }
-
-    public function getEventById($id)
-    {
-        $event = Event::with('user', 'group', 'images')->findOrFail($id);
-        return response()->json($event);
     }
 }

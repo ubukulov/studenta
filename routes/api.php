@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\ApiController;
 use App\Http\Controllers\API\GroupController;
+use App\Http\Controllers\API\EventController;
+use App\Http\Controllers\API\PromotionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,9 +33,9 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::get('categories', [ApiController::class, 'categories']);
 
         # Акции
-        Route::get('promotions', [ApiController::class, 'promotions']);
-        Route::get('promotion/{id}', [ApiController::class, 'getPromotionById']);
-        Route::get('promotion/{id}/images', [ApiController::class, 'getPromotionImagesById']);
+        Route::get('promotions', [PromotionController::class, 'promotions']);
+        Route::get('promotion/{id}', [PromotionController::class, 'getPromotionById']);
+        Route::get('promotion/{id}/images', [PromotionController::class, 'getPromotionImagesById']);
 
         # Группы
         Route::get('groups', [GroupController::class, 'groups']);
@@ -44,8 +46,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::post('group/unsubscribe', [GroupController::class, 'unsubscribe']);
 
         # Ивенты
-        Route::get('events', [ApiController::class, 'events']);
-        Route::get('event/{id}', [ApiController::class, 'getEventById']);
+        Route::get('events', [EventController::class, 'events']);
+        Route::get('event/{id}', [EventController::class, 'getEventById']);
     });
 });
 
