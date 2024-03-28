@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\ApiController;
+use App\Http\Controllers\API\GroupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,8 +36,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::get('promotion/{id}/images', [ApiController::class, 'getPromotionImagesById']);
 
         # Группы
-        Route::get('groups', [ApiController::class, 'groups']);
-        Route::get('group/{id}', [ApiController::class, 'getGroupById']);
+        Route::get('groups', [GroupController::class, 'groups']);
+        Route::get('group/{id}', [GroupController::class, 'getGroupById']);
+        Route::post('group/store', [GroupController::class, 'store']);
+        Route::match(['put', 'patch'], 'group/{id}/update', [GroupController::class, 'update']);
 
         # Ивенты
         Route::get('events', [ApiController::class, 'events']);

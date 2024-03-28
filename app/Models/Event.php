@@ -10,7 +10,8 @@ class Event extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'group_id', 'name', 'description', 'address', 'two_gis', 'date', 'start', 'end', 'count_place'
+        'user_id', 'group_id', 'name', 'description', 'address', 'two_gis', 'date', 'start', 'end',
+        'type', 'cost', 'count_place'
     ];
 
     protected $dates = [

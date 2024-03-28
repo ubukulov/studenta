@@ -113,7 +113,7 @@ class ApiController extends BaseApiController
 
     public function promotions()
     {
-        $promotions = Promotion::orderBy('id', 'DESC')
+        $promotions = Promotion::orderBy('size', 'DESC')
             ->with('category', 'organization')
             ->get();
         return response()->json($promotions);
@@ -131,18 +131,6 @@ class ApiController extends BaseApiController
     {
         $promotion_images = PromotionImage::where(['promotion_id' => $id])->get();
         return response()->json($promotion_images);
-    }
-
-    public function groups()
-    {
-        $groups = Group::with('user', 'category', 'images', 'events')->get();
-        return response()->json($groups);
-    }
-
-    public function getGroupById($id)
-    {
-        $group = Group::with('user', 'category', 'images', 'events')->findOrFail($id);
-        return response()->json($group);
     }
 
     public function events()
