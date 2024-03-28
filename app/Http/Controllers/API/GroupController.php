@@ -23,7 +23,7 @@ class GroupController extends BaseApiController
     {
         $groups = Group::where(['user_id' => $this->user->id])
             ->get();
-        if(count($groups) > 3) {
+        if(count($groups) >= 3) {
             return response()->json('Максимальное количество групп 3', 400);
         }
 
