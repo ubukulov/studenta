@@ -10,7 +10,10 @@ class GroupController extends BaseApiController
     public function groups()
     {
         $groups = Group::with('user', 'category', 'images', 'events')
-            ->join('group_participants', 'group_participants.group_id', '=', 'groups.id')
+            ->selectRaw('groups.*, COUNT(*) as cnt')
+            ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
+            ->groupBy('groups.id')
+            ->orderBy('cnt', 'DESC')
             ->get();
         return response()->json($groups);
     }
