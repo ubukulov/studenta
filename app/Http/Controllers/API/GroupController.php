@@ -44,6 +44,11 @@ class GroupController extends BaseApiController
     public function update(Request $request, $id)
     {
         $group = Group::findOrFail($id);
+
+        if($group->user_id != $this->user->id) {
+            return response()->json('Это группа не ваша.', 400, [], JSON_UNESCAPED_UNICODE);
+        }
+
         $request->validate([
             'name' => 'required',
             'description' => 'required|min:100',
