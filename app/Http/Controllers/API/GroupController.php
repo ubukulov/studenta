@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\Group;
+use App\Models\GroupParticipant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -25,6 +26,7 @@ class GroupController extends BaseApiController
     public function getGroupById($id)
     {
         $group = Group::with('user', 'category', 'images', 'events')->findOrFail($id);
+        $group['subscribe'] = Group::isSubscribe($this->user->id, $id);
         return response()->json($group);
     }
 
@@ -67,5 +69,24 @@ class GroupController extends BaseApiController
         $group->update($request->all());
 
         return response()->json('Группа успешно обновлен', 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function subscribe(Request $request)
+    {
+        $request->validate([
+            'group_id' => 'required',
+        ]);
+
+        $group_id = $request->input('group_id');
+
+        if(Group::isSubscribe($this->user->id, $group_id)) {
+            return response()->json('Вы уже подписаны на эту группу', 400, [], JSON_UNESCAPED_UNICODE);
+        } else {
+            GroupParticipant::create([
+                'user_id' => $this->user->id, 'group_id' => $group_id
+            ]);
+
+            return response()->json('Вы успешно подписаны на группу', 200, [], JSON_UNESCAPED_UNICODE);
+        }
     }
 }

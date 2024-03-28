@@ -36,4 +36,10 @@ class Group extends Model
     {
         return $this->hasMany(Event::class);
     }
+
+    public static function isSubscribe($user_id, $group_id)
+    {
+        $group_participant = GroupParticipant::where(['user_id' => $user_id, 'group_id' => $group_id])->first();
+        return ($group_participant) ? true : false;
+    }
 }
