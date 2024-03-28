@@ -10,6 +10,7 @@ class GroupController extends BaseApiController
     public function groups()
     {
         $groups = Group::with('user', 'category', 'images', 'events')
+            ->join('group_participants', 'group_participants.group_id', '=', 'groups.id')
             ->get();
         return response()->json($groups);
     }
