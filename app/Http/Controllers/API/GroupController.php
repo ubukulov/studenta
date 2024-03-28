@@ -4,13 +4,17 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GroupController extends BaseApiController
 {
     public function groups()
     {
         $groups = Group::with('user', 'category', 'images', 'events')
-            ->selectRaw('groups.*, COUNT(*) as cnt')
+            ->select([
+                'groups.*',
+                DB::raw('(COUNT(*)) as cnt')
+            ])
             ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
             ->groupBy('groups.id')
             ->orderBy('cnt', 'DESC')
