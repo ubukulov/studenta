@@ -32,7 +32,7 @@ class ApiController extends BaseApiController
 
             $user = User::where('email', $request->email)->first();
 
-            if(!$user->tokens()) {
+            if(!$user->tokens) {
                 $token = $user->createToken('API TOKEN')->plainTextToken;
             } else {
                 $token = $user->currentAccessToken();
