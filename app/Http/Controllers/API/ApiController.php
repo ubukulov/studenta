@@ -32,7 +32,7 @@ class ApiController extends BaseApiController
 
             $user = User::where('email', $request->email)->first();
 
-            $user->tokens->delete();
+            $user->tokens()->delete();
 
             $token = $user->createToken('API TOKEN')->plainTextToken;
 
