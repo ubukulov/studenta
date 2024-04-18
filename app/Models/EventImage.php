@@ -12,7 +12,7 @@ class EventImage extends Model
     protected $table = 'event_images';
 
     protected $fillable = [
-        'event_id', 'path'
+        'event_id', 'image'
     ];
 
     protected $dates = [
