@@ -12,7 +12,7 @@ class PromotionController extends BaseApiController
     public function promotions()
     {
         $promotions = Promotion::orderBy('size', 'DESC')
-            ->with('category', 'organization')
+            ->with('category', 'organization', 'images')
             ->get();
         return response()->json($promotions);
     }
