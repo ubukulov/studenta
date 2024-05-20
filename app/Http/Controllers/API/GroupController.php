@@ -71,6 +71,18 @@ class GroupController extends BaseApiController
         return response()->json('Группа успешно обновлен', 200, [], JSON_UNESCAPED_UNICODE);
     }
 
+    public function delete($id)
+    {
+        $group = Group::findOrFail($id);
+        if(!$group) {
+            return response()->json('Группа уже удалено', 400, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        Group::destroy($id);
+
+        return response()->json('Группа удалено успешно', 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
     public function subscribe(Request $request)
     {
         $request->validate([

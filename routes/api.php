@@ -42,12 +42,16 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::get('group/{id}', [GroupController::class, 'getGroupById']);
         Route::post('group/store', [GroupController::class, 'store']);
         Route::match(['put', 'patch'], 'group/{id}/update', [GroupController::class, 'update']);
+        Route::delete('group/{id}/delete', [GroupController::class, 'delete']);
         Route::post('group/subscribe', [GroupController::class, 'subscribe']);
         Route::post('group/unsubscribe', [GroupController::class, 'unsubscribe']);
 
         # Ивенты
         Route::get('events', [EventController::class, 'events']);
         Route::get('event/{id}', [EventController::class, 'getEventById']);
+        Route::post('event/store', [EventController::class, 'store']);
+        Route::match(['put', 'patch'], 'event/{id}/update', [EventController::class, 'update']);
+        Route::delete('event/{id}/delete', [EventController::class, 'delete']);
     });
 });
 
