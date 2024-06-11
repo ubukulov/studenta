@@ -11,7 +11,7 @@ class GroupController extends BaseApiController
 {
     public function groups()
     {
-        $groups = Group::with('user', 'category', 'images', 'events')
+        /*$groups = Group::with('user', 'category', 'images', 'events')
             ->select([
                 'groups.*',
                 DB::raw('(COUNT(*)) as cnt')
@@ -19,7 +19,23 @@ class GroupController extends BaseApiController
             ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
             ->groupBy('groups.id')
             ->orderBy('cnt', 'DESC')
+            ->get();*/
+        $groups = Group::with('user', 'category', 'images', 'events')
+            ->select([
+                'groups.*',
+                DB::raw('(COUNT(*)) as subscribes')
+            ])
+            ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
+            ->groupBy('groups.id')
+            ->orderBy('subscribes', 'DESC')
             ->get();
+        foreach($groups as $group) {
+            if(GroupParticipant::userSubscribed($group->id, $this->user->id)) {
+                $group['subscribe'] = true;
+            } else {
+                $group['subscribe'] = false;
+            }
+        }
         return response()->json($groups);
     }
 

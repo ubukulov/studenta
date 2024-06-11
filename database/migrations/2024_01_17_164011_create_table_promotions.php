@@ -23,6 +23,7 @@ class CreateTablePromotions extends Migration
             $table->text('description')->nullable();
             $table->integer('seats')->nullable();
             $table->string('location')->nullable();
+            $table->string('two_gis')->nullable();
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
             $table->timestamps();

@@ -21,9 +21,8 @@ class CreateTableEvents extends Migration
             $table->text('description')->nullable();
             $table->string('address')->nullable();
             $table->string('two_gis')->nullable();
-            $table->date('date')->nullable();
-            $table->time('start')->nullable();
-            $table->time('end')->nullable();
+            $table->dateTime('start_date')->nullable();
+            $table->dateTime('end_date')->nullable();
             $table->integer('count_place')->nullable();
             $table->timestamps();
 
