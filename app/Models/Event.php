@@ -10,7 +10,7 @@ class Event extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'group_id', 'name', 'description', 'address', 'two_gis', 'date', 'start', 'end',
+        'user_id', 'group_id', 'name', 'description', 'address', 'two_gis', 'start_date', 'end_date',
         'type', 'cost', 'count_place'
     ];
 
@@ -31,5 +31,15 @@ class Event extends Model
     public function images()
     {
         return $this->hasMany(EventImage::class);
+    }
+
+    public function subscribes()
+    {
+        return $this->hasMany(EventParticipant::class);
+    }
+
+    public static function unSubscribe($event_participant)
+    {
+        $event_participant->delete();
     }
 }

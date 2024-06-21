@@ -28,4 +28,10 @@ class GroupParticipant extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public static function userSubscribed($group_id, $user_id)
+    {
+        $record = GroupParticipant::where(['group_id' => $group_id, 'user_id' => $user_id])->firstOrFail();
+        return ($record) ? true : false;
+    }
 }

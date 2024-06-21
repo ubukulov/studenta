@@ -49,6 +49,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         # Ивенты
         Route::get('events', [EventController::class, 'events']);
         Route::get('event/{id}', [EventController::class, 'getEventById']);
+        Route::post('event/subscribe', [EventController::class, 'subscribe']);
+        Route::post('event/unsubscribe', [EventController::class, 'unsubscribe']);
         Route::post('event/store', [EventController::class, 'store']);
         Route::match(['put', 'patch'], 'event/{id}/update', [EventController::class, 'update']);
         Route::delete('event/{id}/delete', [EventController::class, 'delete']);
