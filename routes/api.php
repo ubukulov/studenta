@@ -6,6 +6,7 @@ use App\Http\Controllers\API\ApiController;
 use App\Http\Controllers\API\GroupController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\PromotionController;
+use App\Http\Controllers\API\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,15 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::delete('event/{id}/delete', [EventController::class, 'delete']);
         Route::post('event/subscribe', [EventController::class, 'subscribe']);
         Route::post('event/unsubscribe', [EventController::class, 'unsubscribe']);
+        Route::get('subscribed-events', [EventController::class, 'subscribedEvents']);
+        Route::get('get-my-events', [EventController::class, 'getMyEvents']);
+        Route::post('confirm-subscribe', [EventController::class, 'confirmSubscribe']);
+
+        # Настройки профиля
+        Route::get('get-profile', [UserController::class, 'getProfile']);
+        Route::post('profile/store', [UserController::class, 'storeProfile']);
+        Route::delete('profile/{id}/delete', [UserController::class, 'deleteProfile']);
+        Route::post('change-password', [UserController::class, 'changePassword']);
     });
 });
 
