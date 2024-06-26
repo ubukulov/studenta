@@ -62,7 +62,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         # Настройки профиля
         Route::get('get-profile', [UserController::class, 'getProfile']);
         Route::post('profile/store', [UserController::class, 'storeProfile']);
-        Route::delete('profile/{id}/delete', [UserController::class, 'deleteProfile']);
+        Route::delete('profile/delete', [UserController::class, 'deleteProfile']);
         Route::post('change-password', [UserController::class, 'changePassword']);
     });
 });

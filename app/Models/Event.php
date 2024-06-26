@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Event extends Model
 {
@@ -38,8 +39,9 @@ class Event extends Model
         return $this->hasMany(EventParticipant::class);
     }
 
-    public static function unSubscribe($event_participant)
+    public static function unSubscribe($event_id, $user_id)
     {
+        $event_participant = EventParticipant::where(['event_id' => $event_id, 'user_id' => $user_id])->first();
         $event_participant->delete();
     }
 }

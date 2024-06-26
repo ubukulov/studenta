@@ -31,7 +31,7 @@ class EventParticipant extends Model
 
     public static function userSubscribed($event_id, $user_id): bool
     {
-        $record = EventParticipant::where(['event_id' => $event_id, 'user_id' => $user_id])->firstOrFail();
+        $record = EventParticipant::where(['event_id' => $event_id, 'user_id' => $user_id])->first();
         return (bool) $record;
     }
 

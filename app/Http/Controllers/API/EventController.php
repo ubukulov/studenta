@@ -103,8 +103,8 @@ class EventController extends BaseApiController
 
         $event_id = $request->input('event_id');
 
-        if($event_participant = EventParticipant::userSubscribed($event_id, $this->user->id)) {
-            Event::unSubscribe($event_participant);
+        if(EventParticipant::userSubscribed($event_id, $this->user->id)) {
+            Event::unSubscribe($event_id, $this->user->id);
             return response()->json('Вы успешно отписались от ивента', 200, [], JSON_UNESCAPED_UNICODE);
         } else {
             return response()->json('Вы не подписаны на ивент чтобы отписаться', 400, [], JSON_UNESCAPED_UNICODE);
@@ -114,6 +114,7 @@ class EventController extends BaseApiController
     public function subscribedEvents(): \Illuminate\Http\JsonResponse
     {
         $events = Event::with('user', 'group', 'images')
+            ->selectRaw('events.*')
             ->join('event_participants', 'events.id', '=', 'event_participants.event_id')
             ->where('event_participants.user_id', $this->user->id)
             ->get();
@@ -133,7 +134,7 @@ class EventController extends BaseApiController
         $request->validate([
             'event_id' => 'required',
             'user_id' => 'required',
-            'status' => 'enum:confirmed,rejected',
+            'status' => 'required',
         ]);
 
         $event_id = $request->input('event_id');

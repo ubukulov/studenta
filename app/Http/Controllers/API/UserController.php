@@ -13,7 +13,9 @@ class UserController extends BaseApiController
 {
     public function getProfile(): \Illuminate\Http\JsonResponse
     {
-        $user_profile = UserProfile::where('user_id', $this->user->id)->first();
+        $user_profile = UserProfile::where('user_id', $this->user->id)
+            ->with('user', 'city', 'university', 'speciality')
+            ->first();
         return response()->json($user_profile, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
@@ -22,11 +24,10 @@ class UserController extends BaseApiController
         $request->validate([
             'city_id' => 'required',
             'university_id' => 'required',
-            'specialty_id' => 'required',
+            'speciality_id' => 'required',
             'start_year' => 'required',
             'end_year' => 'required',
         ]);
-
         $user = $this->user;
         $data = $request->all();
         $data['user_id'] = $user->id;
@@ -52,7 +53,7 @@ class UserController extends BaseApiController
         }
 
         if(User::hasProfile($user)) {
-            $user_profile = UserProfile::findOrFail($user->id);
+            $user_profile = UserProfile::where('user_id', $this->user->id)->first();
             $user_profile->update($data);
             return response()->json("Профиль успешно обновлено", 200, [], JSON_UNESCAPED_UNICODE);
         } else {
@@ -61,9 +62,9 @@ class UserController extends BaseApiController
         }
     }
 
-    public function deleteProfile($id): \Illuminate\Http\JsonResponse
+    public function deleteProfile(): \Illuminate\Http\JsonResponse
     {
-        $user_profile = UserProfile::findOrFail($id);
+        $user_profile = UserProfile::where('user_id', $this->user->id)->first();
         if(!$user_profile) {
             return response()->json('Профиль уже удалено', 400, [], JSON_UNESCAPED_UNICODE);
         }

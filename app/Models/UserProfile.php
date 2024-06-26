@@ -19,4 +19,19 @@ class UserProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    public function university()
+    {
+        return $this->belongsTo(University::class);
+    }
+
+    public function speciality()
+    {
+        return $this->belongsTo(Speciality::class);
+    }
 }
