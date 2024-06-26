@@ -104,4 +104,10 @@ class ApiController extends BaseApiController
     {
         return response()->json(Category::all());
     }
+
+    public function privacyPolicy()
+    {
+        $pp = "Privacy Policy text from backend";
+        return response()->json($pp);
+    }
 }
