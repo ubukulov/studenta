@@ -31,7 +31,7 @@ class GroupParticipant extends Model
 
     public static function userSubscribed($group_id, $user_id)
     {
-        $record = GroupParticipant::where(['group_id' => $group_id, 'user_id' => $user_id])->firstOrFail();
+        $record = GroupParticipant::where(['group_id' => $group_id, 'user_id' => $user_id])->first();
         return ($record) ? true : false;
     }
 }

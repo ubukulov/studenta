@@ -11,15 +11,6 @@ class GroupController extends BaseApiController
 {
     public function groups(): \Illuminate\Http\JsonResponse
     {
-        /*$groups = Group::with('user', 'category', 'images', 'events')
-            ->select([
-                'groups.*',
-                DB::raw('(COUNT(*)) as cnt')
-            ])
-            ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
-            ->groupBy('groups.id')
-            ->orderBy('cnt', 'DESC')
-            ->get();*/
         $groups = Group::with('user', 'category', 'images', 'events')
             ->select([
                 'groups.*',
@@ -29,6 +20,7 @@ class GroupController extends BaseApiController
             ->groupBy('groups.id')
             ->orderBy('subscribes', 'DESC')
             ->get();
+
         foreach($groups as $group) {
             if(GroupParticipant::userSubscribed($group->id, $this->user->id)) {
                 $group['subscribe'] = true;
@@ -36,6 +28,7 @@ class GroupController extends BaseApiController
                 $group['subscribe'] = false;
             }
         }
+
         return response()->json($groups);
     }
 
