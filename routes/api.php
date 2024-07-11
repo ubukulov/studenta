@@ -29,6 +29,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
     Route::get('get-promotions', [PromotionController::class, 'promotions']);
     Route::get('get-events', [EventController::class, 'getEvents']);
     Route::get('get-groups', [GroupController::class, 'getGroups']);
+    Route::post('forget-password', [ApiController::class, 'forgetPassword']);
 
     Route::group(['middleware' => 'auth:sanctum'], function(){
         # Организация

@@ -15,8 +15,8 @@ class EventController extends BaseApiController
         $events = Event::with('user', 'group', 'images')
             ->get();
         foreach($events as $event) {
-            $event['subscribes'] = count($event->subscribes);
-            $event['subscribe'] = (EventParticipant::userSubscribed($event->id, $this->user->id)) ? true : false;
+            $event['participants'] = count($event->subscribes);
+            $event['subscribe'] = EventParticipant::userSubscribed($event->id, $this->user->id);
         }
         return response()->json($events);
     }
