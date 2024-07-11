@@ -14,15 +14,27 @@ class UserController extends BaseApiController
 {
     public function getProfile(): \Illuminate\Http\JsonResponse
     {
-        $user_profile = UserProfile::where('user_id', $this->user->id)
+        $user_profile = UserProfile::where('user_profile.user_id', $this->user->id)
             ->with('user', 'city', 'university', 'speciality')
+            ->selectRaw('user_profile.*, identity.image as identity_card, student.image as student_card, avatar.image as avatar')
+            ->leftJoin('image_uploads as identity', 'identity.id', '=', 'user_profile.identity_card')
+            ->leftJoin('image_uploads as student', 'student.id', '=', 'user_profile.student_card')
+            ->leftJoin('image_uploads as avatar', 'avatar.id', '=', 'user_profile.avatar')
             ->first();
         return response()->json($user_profile, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function storeProfile(Request $request): \Illuminate\Http\JsonResponse
     {
-        $request->validate([
+        if($request->has('city_id')) $data['city_id'] = $request->get('city_id');
+        if($request->has('university_id')) $data['university_id'] = $request->get('university_id');
+        if($request->has('speciality_id')) $data['speciality_id'] = $request->get('speciality_id');
+        if($request->has('start_year')) $data['start_year'] = $request->get('start_year');
+        if($request->has('end_year')) $data['end_year'] = $request->get('end_year');
+        if($request->has('identity_card')) $data['identity_card'] = $request->get('identity_card');
+        if($request->has('student_card')) $data['student_card'] = $request->get('student_card');
+        if($request->has('avatar')) $data['avatar'] = $request->get('avatar');
+        /*$request->validate([
             'city_id' => 'required',
             'university_id' => 'required',
             'speciality_id' => 'required',
@@ -30,7 +42,7 @@ class UserController extends BaseApiController
             'end_year' => 'required',
             'identity_card' => 'integer',
             'student_card' => 'integer',
-        ]);
+        ]);*/
 
         $user = $this->user;
         $data = $request->all();
