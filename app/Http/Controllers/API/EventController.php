@@ -114,7 +114,7 @@ class EventController extends BaseApiController
     public function subscribedEvents(): \Illuminate\Http\JsonResponse
     {
         $events = Event::with('user', 'group', 'images')
-            ->selectRaw('events.*')
+            ->selectRaw('events.*, event_participants.status')
             ->join('event_participants', 'events.id', '=', 'event_participants.event_id')
             ->where('event_participants.user_id', $this->user->id)
             ->get();

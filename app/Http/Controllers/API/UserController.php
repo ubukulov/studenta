@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\ImageUpload;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
@@ -27,30 +28,13 @@ class UserController extends BaseApiController
             'speciality_id' => 'required',
             'start_year' => 'required',
             'end_year' => 'required',
+            'identity_card' => 'integer',
+            'student_card' => 'integer',
         ]);
+
         $user = $this->user;
         $data = $request->all();
         $data['user_id'] = $user->id;
-
-        if($request->hasFile('identity_card')) {
-            $identity_card = $request->file('identity_card');
-            $ext = $identity_card->getClientOriginalExtension();
-            $name = md5(time()) . '.' . $ext;
-            $path = '/upload/users/';
-            $dir = public_path() . $path;
-            $identity_card->move($dir, $name);
-            $data['identity_card'] = $path.$name;
-        }
-
-        if($request->hasFile('student_card')) {
-            $student_card = $request->file('student_card');
-            $ext = $student_card->getClientOriginalExtension();
-            $name = md5(time()) . '.' . $ext;
-            $path = '/upload/users/';
-            $dir = public_path() . $path;
-            $student_card->move($dir, $name);
-            $data['student_card'] = $path.$name;
-        }
 
         if(User::hasProfile($user)) {
             $user_profile = UserProfile::where('user_id', $this->user->id)->first();
@@ -95,5 +79,25 @@ class UserController extends BaseApiController
         $user->save();
 
         return response()->json('Пароль изменился успешно', 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function uploadImage(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'image' => 'required',
+        ]);
+
+        $image = $request->file('image');
+        $ext = $image->getClientOriginalExtension();
+        $name = md5(time()) . '.' . $ext;
+        $path = '/upload/images/';
+        $dir = public_path() . $path;
+        $image->move($dir, $name);
+
+        $imageUpload = ImageUpload::create([
+            'user_id' => $this->user->id, 'image' => $path.$name
+        ]);
+
+        return response()->json($imageUpload, 200, [], JSON_UNESCAPED_UNICODE);
     }
 }
