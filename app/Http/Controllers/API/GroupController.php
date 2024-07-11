@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class GroupController extends BaseApiController
 {
-    public function groups()
+    public function groups(): \Illuminate\Http\JsonResponse
     {
         /*$groups = Group::with('user', 'category', 'images', 'events')
             ->select([
@@ -129,5 +129,20 @@ class GroupController extends BaseApiController
         } else {
             return response()->json('Вы не подписаны на группу чтобы отписаться', 400, [], JSON_UNESCAPED_UNICODE);
         }
+    }
+
+    public function getGroups(): \Illuminate\Http\JsonResponse
+    {
+        $groups = Group::with('user', 'category', 'images', 'events')
+            ->select([
+                'groups.*',
+                DB::raw('(COUNT(*)) as subscribes')
+            ])
+            ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
+            ->groupBy('groups.id')
+            ->orderBy('subscribes', 'DESC')
+            ->get();
+
+        return response()->json($groups);
     }
 }

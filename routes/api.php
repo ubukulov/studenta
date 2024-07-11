@@ -26,6 +26,9 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
     Route::get('specialities', [ApiController::class, 'specialities']);
     Route::get('interests', [ApiController::class, 'interests']);
     Route::get('privacy-policy', [ApiController::class, 'privacyPolicy']);
+    Route::get('get-promotions', [PromotionController::class, 'promotions']);
+    Route::get('get-events', [EventController::class, 'getEvents']);
+    Route::get('get-groups', [GroupController::class, 'getGroups']);
 
     Route::group(['middleware' => 'auth:sanctum'], function(){
         # Организация

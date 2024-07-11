@@ -166,4 +166,12 @@ class EventController extends BaseApiController
             return response()->json("Не найдено запись для подтверждение подписки", 404, [], JSON_UNESCAPED_UNICODE);
         }
     }
+
+    public function getEvents(): \Illuminate\Http\JsonResponse
+    {
+        $events = Event::with('user', 'group', 'images')
+            ->get();
+
+        return response()->json($events);
+    }
 }

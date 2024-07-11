@@ -50,28 +50,23 @@ class ApiController extends BaseApiController
         }
     }
 
-    public function register(Request $request)
+    public function register(Request $request): \Illuminate\Http\JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
         ]);
 
-        // 1
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 401);
         }
 
-        // 2
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
 
-        // 3
         $token = $user->createToken('API TOKEN')->plainTextToken;
 
-        // 4
         return response()->json(['token' => $token], 200);
     }
 
