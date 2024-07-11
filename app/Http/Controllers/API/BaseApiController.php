@@ -12,8 +12,9 @@ class BaseApiController extends Controller
     public function __construct()
     {
         if(is_null($this->user)) {
-            if(auth('sanctum')->user() === null) abort(401);
-            $this->user = auth('sanctum')->user();
+            $user = auth('sanctum')->user();
+            if($user === null) abort(401);
+            $this->user = $user;
         }
     }
 }
