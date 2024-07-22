@@ -28,6 +28,7 @@ class ConfirmationCode extends Model
     public static function confirm($email, $code)
     {
         return ConfirmationCode::where(['email' => $email, 'code' => $code])
-            ->update(['status' => 'confirmed']);
+            ->update(['status' => 'confirmed'])
+            ->first();
     }
 }
