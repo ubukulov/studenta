@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Group;
 use App\Models\GroupParticipant;
+use App\Models\ImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,9 +28,15 @@ class GroupController extends BaseApiController
             } else {
                 $group['subscribe'] = false;
             }
+            $user = $group->user;
+            if($user->profile) {
+                $user_profile = $user->profile;
+                $university = $user_profile->university;
+                if($university) $group['user']['university'] = $university->name ?? null;
+                $image_upload = ImageUpload::find($user_profile->avatar);
+                if($image_upload) $group['user']['avatar'] = public_path() . $image_upload->image ?? null;
+            }
         }
-
-        // TODO: 1. К объекту user: Добавить названия университета, фото
 
         return response()->json($groups);
     }
