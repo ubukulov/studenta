@@ -90,7 +90,8 @@ class ApiController extends Controller
     {
         $data = $request->all();
         if(ConfirmationCode::get($data['email'], $data['code'])) {
-            $confirmation_code = ConfirmationCode::confirm($data['email'], $data['code']);
+            ConfirmationCode::confirm($data['email'], $data['code']);
+            $confirmation_code = ConfirmationCode::where(['email' => $data['email'], 'code' => $data['code']])->first();
             $user = User::create([
                 'email' => $data['email'], 'password' => bcrypt($confirmation_code->password)
             ]);
