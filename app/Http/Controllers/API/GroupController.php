@@ -29,13 +29,17 @@ class GroupController extends BaseApiController
                 $group['subscribe'] = false;
             }
             $user = $group->user;
-            if($user->profile) {
-                $user_profile = $user->profile;
+            $user_profile = $user->profile;
+            if($user_profile) {
                 $university = $user_profile->university;
                 if($university) $group['user']['university'] = $university->name ?? null;
                 $image_upload = ImageUpload::find($user_profile->avatar);
-                if($image_upload) $group['user']['avatar'] = public_path() . $image_upload->image ?? null;
+                if($image_upload) $group['user']['avatar'] = "http://194.4.56.241:8877" . $image_upload->image ?? null;
+            } else {
+                $group['user']['university'] = null;
+                $group['user']['avatar'] = null;
             }
+            unset($group['user']['profile']);
         }
 
         return response()->json($groups);
