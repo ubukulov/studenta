@@ -23,4 +23,9 @@ class ImageUpload extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public static function get($user_id, $image_id): bool
+    {
+        return (bool) ImageUpload::where(['user_id' => $user_id, 'id' => $image_id])->first();
+    }
 }

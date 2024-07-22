@@ -2,20 +2,24 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
+use App\Mail\ConfirmationEmail;
 use App\Mail\ResetPasswordEmail;
 use App\Models\Category;
 use App\Models\City;
+use App\Models\ConfirmationCode;
 use App\Models\Interest;
 use App\Models\Organization;
 use App\Models\Speciality;
 use App\Models\University;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Auth;
 use Validator;
 
-class ApiController extends BaseApiController
+class ApiController extends Controller
 {
     /**
      * Login The User
@@ -54,22 +58,49 @@ class ApiController extends BaseApiController
 
     public function register(Request $request): \Illuminate\Http\JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8'],
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'string', 'min:8'],
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 401);
+            }
+
+            $input = $request->all();
+            $input['code'] = rand(100000,999999);
+
+            $confirmation_code = ConfirmationCode::create($input);
+
+            $data = [
+                'title' => 'Подтвердите регистрацию',
+                'code' => $confirmation_code->code,
+            ];
+
+            Mail::to($confirmation_code->email)->send(new ConfirmationEmail($data));
+
+            return response()->json('Код подтверждение регистрации отправлено на вашу почту', 200,[],JSON_UNESCAPED_UNICODE);
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500, [], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    public function confirmationCode(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $data = $request->all();
+        if(ConfirmationCode::get($data['email'], $data['code'])) {
+            $confirmation_code = ConfirmationCode::confirm($data['email'], $data['code']);
+            $user = User::create([
+                'email' => $data['email'], 'password' => bcrypt($confirmation_code->password)
+            ]);
+
+            $token = $user->createToken('API TOKEN')->plainTextToken;
+
+            return response()->json(['token' => $token], 200, [], JSON_UNESCAPED_UNICODE);
         }
 
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
-
-        $token = $user->createToken('API TOKEN')->plainTextToken;
-
-        return response()->json(['token' => $token], 200);
+        return response()->json('Неверный код подтверждения', 401, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function cities(): \Illuminate\Http\JsonResponse
@@ -110,22 +141,28 @@ class ApiController extends BaseApiController
 
     public function forgetPassword(Request $request): \Illuminate\Http\JsonResponse
     {
-        $request->validate(['email' => 'required|email']);
-        $email = $request->get('email');
-        $user = User::whereEmail($email)->first();
-        if (!$user) {
-            return response()->json('Пользователь с таким email не найдено', 403, [], JSON_UNESCAPED_UNICODE);
+        try {
+            $request->validate(['email' => 'required|email']);
+            $email = $request->get('email');
+            $user = User::whereEmail($email)->first();
+            if (!$user) {
+                return response()->json('Пользователь с таким email не найдено', 403, [], JSON_UNESCAPED_UNICODE);
+            }
+
+            $new_password = rand(10000000,99999999);
+            $user->password = bcrypt($new_password);
+            $user->save();
+
+            $data = [
+                'title' => 'Вы сбросили пароль',
+                'password' => $new_password
+            ];
+
+            Mail::to($email)->send(new ResetPasswordEmail($data));
+
+            return response()->json('Новый пароль успешно отправлено на почту', 200, [], JSON_UNESCAPED_UNICODE);
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage(), 500, [], JSON_UNESCAPED_UNICODE);
         }
-
-        $new_password = rand(10000000,99999999);
-        $user->password = bcrypt($new_password);
-        $user->save();
-
-        $data = [
-            'title' => 'Вы сбросили пароль',
-            'password' => $new_password
-        ];
-
-        Mail::to($email)->send(new ResetPasswordEmail($data));
     }
 }

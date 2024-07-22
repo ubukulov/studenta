@@ -29,6 +29,8 @@ class GroupController extends BaseApiController
             }
         }
 
+        // TODO: 1. К объекту user: Добавить названия университета, фото
+
         return response()->json($groups);
     }
 
@@ -46,6 +48,10 @@ class GroupController extends BaseApiController
         if(count($groups) >= 3) {
             return response()->json('Максимальное количество групп 3', 400);
         }
+
+        // TODO: Изменить модель группу.
+        // 1. Группа может привязывать к нескольким категориям
+        // 2. У категория должно быть фото
 
         $request->validate([
            'name' => 'required',

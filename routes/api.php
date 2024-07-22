@@ -30,6 +30,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
     Route::get('get-events', [EventController::class, 'getEvents']);
     Route::get('get-groups', [GroupController::class, 'getGroups']);
     Route::post('forget-password', [ApiController::class, 'forgetPassword']);
+    Route::post('confirmation-code', [ApiController::class, 'confirmationCode']);
 
     Route::group(['middleware' => 'auth:sanctum'], function(){
         # Организация
@@ -69,6 +70,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::post('profile/store', [UserController::class, 'storeProfile']);
         Route::delete('profile/delete', [UserController::class, 'deleteProfile']);
         Route::post('change-password', [UserController::class, 'changePassword']);
+        Route::post('delete/avatar', [UserController::class, 'deleteAvatar']);
 
         # Загрузка файлов
         Route::post('image/upload', [UserController::class, 'uploadImage']);

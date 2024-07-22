@@ -70,7 +70,7 @@ class EventController extends BaseApiController
 
         Event::destroy($id);
 
-        return response()->json('Ивент удалено успешно', 400, [], JSON_UNESCAPED_UNICODE);
+        return response()->json('Ивент удалено успешно', 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function subscribe(Request $request): \Illuminate\Http\JsonResponse

@@ -34,4 +34,11 @@ class UserProfile extends Model
     {
         return $this->belongsTo(Speciality::class);
     }
+
+    public static function resetAvatar(User $user)
+    {
+        $user_profile = $user->profile;
+        $user_profile->avatar = null;
+        $user_profile->save();
+    }
 }

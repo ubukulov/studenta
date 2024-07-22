@@ -67,7 +67,7 @@ class UserController extends BaseApiController
 
         $user_profile->delete();
 
-        return response()->json('Профиль удалено успешно', 400, [], JSON_UNESCAPED_UNICODE);
+        return response()->json('Профиль удалено успешно', 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function changePassword(Request $request): \Illuminate\Http\JsonResponse
@@ -111,5 +111,22 @@ class UserController extends BaseApiController
         ]);
 
         return response()->json($imageUpload, 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function deleteAvatar(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'image_id' => 'required'
+        ]);
+
+        if(ImageUpload::get($this->user->id, $request->get('image_id'))) {
+            ImageUpload::destroy($request->get('image_id'));
+
+            UserProfile::resetAvatar($this->user);
+
+            return response()->json('Фото успешно удалено', 200, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        return response()->json('Не найдено фото с таким ид', 404, [], JSON_UNESCAPED_UNICODE);
     }
 }
