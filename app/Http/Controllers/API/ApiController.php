@@ -8,11 +8,17 @@ use App\Mail\ResetPasswordEmail;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\ConfirmationCode;
+use App\Models\Event;
+use App\Models\Group;
+use App\Models\GroupParticipant;
+use App\Models\ImageUpload;
 use App\Models\Interest;
 use App\Models\Organization;
+use App\Models\Promotion;
 use App\Models\Speciality;
 use App\Models\University;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
@@ -165,5 +171,56 @@ class ApiController extends Controller
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500, [], JSON_UNESCAPED_UNICODE);
         }
+    }
+
+    public function promotions()
+    {
+        $promotions = Promotion::orderBy('size', 'DESC')
+            ->with('category', 'organization', 'images')
+            ->get();
+        return response()->json($promotions);
+    }
+
+    public function getEvents(): \Illuminate\Http\JsonResponse
+    {
+        $events = Event::with('user', 'group', 'images')
+            ->get();
+
+        return response()->json($events);
+    }
+
+    public function groups(): \Illuminate\Http\JsonResponse
+    {
+        $groups = Group::with('user', 'images', 'events')
+            ->select([
+                'groups.*',
+                DB::raw('(COUNT(*)) as subscribes')
+            ])
+            ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
+            ->groupBy('groups.id')
+            ->orderBy('subscribes', 'DESC')
+            ->get();
+
+        foreach($groups as $group) {
+            if(GroupParticipant::userSubscribed($group->id, $this->user->id)) {
+                $group['subscribe'] = true;
+            } else {
+                $group['subscribe'] = false;
+            }
+            $user = $group->user;
+            $user_profile = $user->profile;
+            if($user_profile) {
+                $university = $user_profile->university;
+                if($university) $group['user']['university'] = $university->name ?? null;
+                $image_upload = ImageUpload::find($user_profile->avatar);
+                if($image_upload) $group['user']['avatar'] = "http://194.4.56.241:8877" . $image_upload->image ?? null;
+            } else {
+                $group['user']['university'] = null;
+                $group['user']['avatar'] = null;
+            }
+            unset($group['user']['profile']);
+        }
+
+        return response()->json($groups);
     }
 }

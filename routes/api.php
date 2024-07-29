@@ -7,6 +7,7 @@ use App\Http\Controllers\API\GroupController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\PromotionController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,9 +27,9 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
     Route::get('specialities', [ApiController::class, 'specialities']);
     Route::get('interests', [ApiController::class, 'interests']);
     Route::get('privacy-policy', [ApiController::class, 'privacyPolicy']);
-    Route::get('get-promotions', [PromotionController::class, 'promotions']);
-    Route::get('get-events', [EventController::class, 'getEvents']);
-    Route::get('get-groups', [GroupController::class, 'getGroups']);
+    Route::get('get-promotions', [ApiController::class, 'promotions']);
+    Route::get('get-events', [ApiController::class, 'getEvents']);
+    Route::get('get-groups', [ApiController::class, 'getGroups']);
     Route::post('forget-password', [ApiController::class, 'forgetPassword']);
     Route::post('confirmation-code', [ApiController::class, 'confirmationCode']);
 
@@ -38,6 +39,8 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
 
         # Категория
         Route::get('categories', [ApiController::class, 'categories']);
+        Route::post('categories', [CategoryController::class, 'addCategory']);
+        Route::post('categories/{id}/update', [CategoryController::class, 'updateCategory']);
 
         # Акции
         Route::get('promotions', [PromotionController::class, 'promotions']);
