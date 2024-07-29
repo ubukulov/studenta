@@ -16,7 +16,7 @@ class CreateTableGroups extends Migration
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('category_id');
+//            $table->unsignedBigInteger('category_id');
             $table->string('name')->nullable();
             $table->text('description')->nullable();
             $table->string('instagram')->nullable();

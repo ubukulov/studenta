@@ -12,7 +12,7 @@ class GroupController extends BaseApiController
 {
     public function groups(): \Illuminate\Http\JsonResponse
     {
-        $groups = Group::with('user', 'category', 'images', 'events')
+        $groups = Group::with('user', 'images', 'events')
             ->select([
                 'groups.*',
                 DB::raw('(COUNT(*)) as subscribes')
@@ -67,13 +67,17 @@ class GroupController extends BaseApiController
         $request->validate([
            'name' => 'required',
            'description' => 'required|min:100',
-           'category_id' => 'required'
+            'categories' => 'required|array|min:1',
         ]);
 
         $data = $request->all();
         $data['user_id'] = $this->user->id;
 
-        Group::create($data);
+        $group = Group::create($data);
+
+        foreach($data['categories'] as $category) {
+            $group->categories()->attach($category);
+        }
 
         return response()->json('Группа успешно создан', 200, [], JSON_UNESCAPED_UNICODE);
     }

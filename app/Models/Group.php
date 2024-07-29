@@ -22,10 +22,10 @@ class Group extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
+//    public function category()
+//    {
+//        return $this->belongsTo(Category::class);
+//    }
 
     public function images()
     {
@@ -35,6 +35,11 @@ class Group extends Model
     public function events()
     {
         return $this->hasMany(Event::class);
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'group_categories', 'group_id', 'category_id');
     }
 
     public function subscribes()
