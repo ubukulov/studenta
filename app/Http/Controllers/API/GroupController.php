@@ -60,14 +60,11 @@ class GroupController extends BaseApiController
             return response()->json('Максимальное количество групп 3', 400);
         }
 
-        // TODO: Изменить модель группу.
-        // 1. Группа может привязывать к нескольким категориям
-        // 2. У категория должно быть фото
-
         $request->validate([
-           'name' => 'required',
-           'description' => 'required|min:100',
+            'name' => 'required',
+            'description' => 'required|min:100',
             'categories' => 'required|array|min:1',
+            'categories.*' => 'exists:categories,id',
         ]);
 
         $data = $request->all();
