@@ -223,4 +223,23 @@ class ApiController extends Controller
 
         return response()->json($groups);
     }
+
+    public function getGroups(): \Illuminate\Http\JsonResponse
+    {
+        $groups = Group::with('user', 'categories', 'images', 'events')
+            ->select([
+                'groups.*',
+                DB::raw('(COUNT(*)) as subscribes')
+            ])
+            ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
+            ->groupBy('groups.id')
+            ->orderBy('subscribes', 'DESC')
+            ->get();
+
+//        foreach($groups as $group) {
+//            dd($group->categories);
+//        }
+
+        return response()->json($groups);
+    }
 }

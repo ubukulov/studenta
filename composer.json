@@ -6,13 +6,15 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "ext-json": "*",
         "fakerphp/faker": "^1.23",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
-        "ext-json": "*"
+        "symfony/http-client": "^5.4",
+        "symfony/mailgun-mailer": "^5.4"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
