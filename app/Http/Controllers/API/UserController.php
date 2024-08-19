@@ -107,7 +107,7 @@ class UserController extends BaseApiController
         $image->move($dir, $name);
 
         $imageUpload = ImageUpload::create([
-            'user_id' => $this->user->id, 'image' => $path.$name
+            'user_id' => $this->user->id, 'image' => env('APP_URL') . $path.$name
         ]);
 
         return response()->json($imageUpload, 200, [], JSON_UNESCAPED_UNICODE);

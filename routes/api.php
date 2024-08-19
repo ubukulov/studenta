@@ -32,13 +32,12 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
     Route::get('get-groups', [ApiController::class, 'getGroups']);
     Route::post('forget-password', [ApiController::class, 'forgetPassword']);
     Route::post('confirmation-code', [ApiController::class, 'confirmationCode']);
+    Route::get('categories', [ApiController::class, 'categories']);
+    # Организация
+    Route::get('organizations', [ApiController::class, 'organizations']);
 
     Route::group(['middleware' => 'auth:sanctum'], function(){
-        # Организация
-        Route::get('organizations', [ApiController::class, 'organizations']);
-
         # Категория
-        Route::get('categories', [ApiController::class, 'categories']);
         Route::post('categories', [CategoryController::class, 'addCategory']);
         Route::post('categories/{id}/update', [CategoryController::class, 'updateCategory']);
 

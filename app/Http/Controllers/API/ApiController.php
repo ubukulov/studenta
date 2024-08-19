@@ -64,6 +64,7 @@ class ApiController extends Controller
 
     public function register(Request $request): \Illuminate\Http\JsonResponse
     {
+        DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -75,7 +76,8 @@ class ApiController extends Controller
             }
 
             $input = $request->all();
-            $input['code'] = rand(100000,999999);
+            //$input['code'] = rand(1000,9999);
+            $input['code'] = "0000";
 
             $confirmation_code = ConfirmationCode::create($input);
 
@@ -84,10 +86,12 @@ class ApiController extends Controller
                 'code' => $confirmation_code->code,
             ];
 
-            Mail::to($confirmation_code->email)->send(new ConfirmationEmail($data));
+//            Mail::to($confirmation_code->email)->send(new ConfirmationEmail($data));
+            DB::commit();
 
             return response()->json('Код подтверждение регистрации отправлено на вашу почту', 200,[],JSON_UNESCAPED_UNICODE);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json($e->getMessage(), 500, [], JSON_UNESCAPED_UNICODE);
         }
     }
@@ -99,7 +103,8 @@ class ApiController extends Controller
             ConfirmationCode::confirm($data['email'], $data['code']);
             $confirmation_code = ConfirmationCode::where(['email' => $data['email'], 'code' => $data['code']])->first();
             $user = User::create([
-                'email' => $data['email'], 'password' => bcrypt($confirmation_code->password)
+                'name' => $data['name'], 'email' => $data['email'], 'password' => bcrypt($confirmation_code->password),
+                'device_token' => $data['device_token']
             ]);
 
             $token = $user->createToken('API TOKEN')->plainTextToken;
@@ -187,41 +192,6 @@ class ApiController extends Controller
             ->get();
 
         return response()->json($events);
-    }
-
-    public function groups(): \Illuminate\Http\JsonResponse
-    {
-        $groups = Group::with('user', 'images', 'events')
-            ->select([
-                'groups.*',
-                DB::raw('(COUNT(*)) as subscribes')
-            ])
-            ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
-            ->groupBy('groups.id')
-            ->orderBy('subscribes', 'DESC')
-            ->get();
-
-        foreach($groups as $group) {
-            if(GroupParticipant::userSubscribed($group->id, $this->user->id)) {
-                $group['subscribe'] = true;
-            } else {
-                $group['subscribe'] = false;
-            }
-            $user = $group->user;
-            $user_profile = $user->profile;
-            if($user_profile) {
-                $university = $user_profile->university;
-                if($university) $group['user']['university'] = $university->name ?? null;
-                $image_upload = ImageUpload::find($user_profile->avatar);
-                if($image_upload) $group['user']['avatar'] = "http://194.4.56.241:8877" . $image_upload->image ?? null;
-            } else {
-                $group['user']['university'] = null;
-                $group['user']['avatar'] = null;
-            }
-            unset($group['user']['profile']);
-        }
-
-        return response()->json($groups);
     }
 
     public function getGroups(): \Illuminate\Http\JsonResponse

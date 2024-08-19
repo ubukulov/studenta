@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventParticipant;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -89,8 +90,20 @@ class EventController extends BaseApiController
         EventParticipant::subscribe($event_id, $this->user->id, $event);
 
         if($event->type == 'free') {
+
+            Notification::create([
+                'user_id' => $this->user->id, 'type' => 'events', 'message' => "Вы успешно подписаны на ивент"
+            ]);
+
+            $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Вы успешно подписаны на ивент");
+
             return response()->json('Вы успешно подписаны на ивент', 200, [], JSON_UNESCAPED_UNICODE);
         } else {
+            Notification::create([
+                'user_id' => $this->user->id, 'type' => 'events', 'message' => "Ждите подтверждение от модератора"
+            ]);
+
+            $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Ждите подтверждение от модератора");
             return response()->json('Ждите подтверждение от модератора', 200, [], JSON_UNESCAPED_UNICODE);
         }
     }

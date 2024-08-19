@@ -12,7 +12,7 @@ class ConfirmationCode extends Model
     protected $table = 'confirmation_codes';
 
     protected $fillable = [
-        'email', 'password', 'code', 'status'
+        'name', 'email', 'password', 'code', 'status'
     ];
 
     protected $dates = [

@@ -12,7 +12,7 @@ class GroupController extends BaseApiController
 {
     public function groups(): \Illuminate\Http\JsonResponse
     {
-        $groups = Group::with('user', 'images', 'events')
+        $groups = Group::with('user', 'images', 'events', 'categories')
             ->select([
                 'groups.*',
                 DB::raw('(COUNT(*)) as subscribes')
@@ -34,7 +34,7 @@ class GroupController extends BaseApiController
                 $university = $user_profile->university;
                 if($university) $group['user']['university'] = $university->name ?? null;
                 $image_upload = ImageUpload::find($user_profile->avatar);
-                if($image_upload) $group['user']['avatar'] = "http://194.4.56.241:8877" . $image_upload->image ?? null;
+                if($image_upload) $group['user']['avatar'] = env('APP_URL') . $image_upload->image ?? null;
             } else {
                 $group['user']['university'] = null;
                 $group['user']['avatar'] = null;
