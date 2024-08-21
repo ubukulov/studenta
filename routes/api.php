@@ -66,6 +66,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::get('subscribed-events', [EventController::class, 'subscribedEvents']);
         Route::get('get-my-events', [EventController::class, 'getMyEvents']);
         Route::post('confirm-subscribe', [EventController::class, 'confirmSubscribe']);
+        Route::get('get-requests-for-subscribe', [EventController::class, 'getRequestsForSubscribe']);
 
         # Настройки профиля
         Route::get('get-profile', [UserController::class, 'getProfile']);

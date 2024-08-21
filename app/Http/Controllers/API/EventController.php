@@ -187,4 +187,13 @@ class EventController extends BaseApiController
 
         return response()->json($events);
     }
+
+    public function getRequestsForSubscribe(): \Illuminate\Http\JsonResponse
+    {
+        $events = Event::with('user', 'group', 'images')
+            ->join('event_participants', 'events.id', '=', 'event_participants.event_id')
+            ->where(['event_participants.status' => 'waiting', 'events.user_id' => $this->user->id])
+            ->get();
+        return response()->json($events);
+    }
 }
