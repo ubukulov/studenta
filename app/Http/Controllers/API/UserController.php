@@ -47,6 +47,10 @@ class UserController extends BaseApiController
         $user = $this->user;
         $data = $request->all();
         $data['user_id'] = $user->id;
+        if($data['device_token']) {
+            $user->device_token = $data['device_token'];
+            $user->save();
+        }
 
         if(User::hasProfile($user)) {
             $user_profile = UserProfile::where('user_id', $this->user->id)->first();
