@@ -42,22 +42,22 @@ class UserController extends BaseApiController
 
         $data['user_id'] = $user->id;
 
-        if($data['name']) {
+        if(isset($data['name'])) {
             $user->name = $data['name'];
             $user->save();
         }
 
-        if($data['surname']) {
+        if(isset($data['surname'])) {
             $user->surname = $data['surname'];
             $user->save();
         }
 
-        if($data['phone']) {
+        if(isset($data['phone'])) {
             $user->phone = $data['phone'];
             $user->save();
         }
 
-        if($data['device_token']) {
+        if(isset($data['device_token'])) {
             $user->device_token = $data['device_token'];
             $user->save();
         }
