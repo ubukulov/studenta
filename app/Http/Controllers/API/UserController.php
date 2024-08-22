@@ -26,6 +26,8 @@ class UserController extends BaseApiController
 
     public function storeProfile(Request $request): \Illuminate\Http\JsonResponse
     {
+        $user = $this->user;
+
         if($request->has('city_id')) $data['city_id'] = $request->get('city_id');
         if($request->has('university_id')) $data['university_id'] = $request->get('university_id');
         if($request->has('speciality_id')) $data['speciality_id'] = $request->get('speciality_id');
@@ -34,19 +36,27 @@ class UserController extends BaseApiController
         if($request->has('identity_card')) $data['identity_card'] = $request->get('identity_card');
         if($request->has('student_card')) $data['student_card'] = $request->get('student_card');
         if($request->has('avatar')) $data['avatar'] = $request->get('avatar');
-        /*$request->validate([
-            'city_id' => 'required',
-            'university_id' => 'required',
-            'speciality_id' => 'required',
-            'start_year' => 'required',
-            'end_year' => 'required',
-            'identity_card' => 'integer',
-            'student_card' => 'integer',
-        ]);*/
 
-        $user = $this->user;
+
         $data = $request->all();
+
         $data['user_id'] = $user->id;
+
+        if($data['name']) {
+            $user->name = $data['name'];
+            $user->save();
+        }
+
+        if($data['surname']) {
+            $user->surname = $data['surname'];
+            $user->save();
+        }
+
+        if($data['phone']) {
+            $user->phone = $data['phone'];
+            $user->save();
+        }
+
         if($data['device_token']) {
             $user->device_token = $data['device_token'];
             $user->save();
