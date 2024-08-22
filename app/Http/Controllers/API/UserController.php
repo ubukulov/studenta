@@ -16,7 +16,7 @@ class UserController extends BaseApiController
     {
         $user_profile = UserProfile::where('user_profile.user_id', $this->user->id)
             ->with('user', 'city', 'university', 'speciality')
-            ->selectRaw('user_profile.*, identity.image as identity_card, student.image as student_card, avatar.image as avatar')
+            ->selectRaw('user_profile.*, identity.image as identity_card_image, student.image as student_card_image, avatar.image as avatar_image')
             ->leftJoin('image_uploads as identity', 'identity.id', '=', 'user_profile.identity_card')
             ->leftJoin('image_uploads as student', 'student.id', '=', 'user_profile.student_card')
             ->leftJoin('image_uploads as avatar', 'avatar.id', '=', 'user_profile.avatar')
