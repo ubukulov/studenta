@@ -14,11 +14,14 @@ class EventController extends BaseApiController
     public function events(): \Illuminate\Http\JsonResponse
     {
         $events = Event::with('user', 'group', 'images')
+            ->selectRaw('events.*, event_participants.status')
+            ->join('event_participants', 'events.id', '=', 'event_participants.event_id')
             ->get();
         foreach($events as $event) {
-            $event['participants'] = count($event->subscribes);
+            $event['participants'] = $event->getSubscribesCount();
             $event['subscribe'] = EventParticipant::userSubscribed($event->id, $this->user->id);
         }
+
         return response()->json($events);
     }
 

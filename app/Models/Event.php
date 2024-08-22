@@ -39,6 +39,11 @@ class Event extends Model
         return $this->hasMany(EventParticipant::class);
     }
 
+    public function getSubscribesCount()
+    {
+        return count($this->subscribes);
+    }
+
     public static function unSubscribe($event_id, $user_id)
     {
         $event_participant = EventParticipant::where(['event_id' => $event_id, 'user_id' => $user_id])->first();
