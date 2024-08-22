@@ -20,6 +20,7 @@ class EventController extends BaseApiController
         foreach($events as $event) {
             $event['participants'] = $event->getSubscribesCount();
             $event['subscribe'] = EventParticipant::userSubscribed($event->id, $this->user->id);
+            unset($event['subscribes']);
         }
 
         return response()->json($events);
