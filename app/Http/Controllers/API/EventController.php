@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventParticipant;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -194,10 +195,25 @@ class EventController extends BaseApiController
 
     public function getRequestsForSubscribe(): \Illuminate\Http\JsonResponse
     {
-        $events = Event::with('user', 'group', 'images')
+        $result = Event::where(['event_participants.status' => 'waiting', 'events.user_id' => $this->user->id])
+            ->with('group', 'images')
             ->join('event_participants', 'events.id', '=', 'event_participants.event_id')
-            ->where(['event_participants.status' => 'waiting', 'events.user_id' => $this->user->id])
             ->get();
+
+        $events = [];
+
+        foreach($result as $item) {
+            if(array_key_exists($item->event_id, $events)) {
+                $events[$item->event_id]['users'][] = User::with('profile')->findOrFail($item->user_id);
+            } else {
+                $events[$item->event_id] = $item->toArray();
+                $user = User::with('profile')->findOrFail($item->user_id);
+                $events[$item->event_id]['users'][] = $user;
+            }
+        }
+
+        $events = array_values($events);
+
         return response()->json($events);
     }
 }
