@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 
 class NotificationController extends BaseApiController
 {
-    //TODO
-    // 1. Детально уведомление
     public function getNotificationTypes(): \Illuminate\Http\JsonResponse
     {
         $arrTypes = [
