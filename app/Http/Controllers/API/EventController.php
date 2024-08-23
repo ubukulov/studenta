@@ -85,31 +85,42 @@ class EventController extends BaseApiController
             'event_id' => 'required',
         ]);
 
-        $event_id = $request->input('event_id');
-        $event = Event::findOrFail($event_id);
+        DB::beginTransaction();
+        try {
+            $event_id = $request->input('event_id');
+            $event = Event::findOrFail($event_id);
 
-        if(EventParticipant::userSubscribed($event_id, $this->user->id)) {
-            return response()->json('Вы уже подписаны на этот ивент', 400, [], JSON_UNESCAPED_UNICODE);
-        }
+            if(EventParticipant::userSubscribed($event_id, $this->user->id)) {
+                DB::commit();
+                return response()->json('Вы уже подписаны на этот ивент', 400, [], JSON_UNESCAPED_UNICODE);
+            }
 
-        EventParticipant::subscribe($event_id, $this->user->id, $event);
+            EventParticipant::subscribe($event_id, $this->user->id, $event);
 
-        if($event->type == 'free') {
+            if($event->type == 'free') {
 
-            Notification::create([
-                'user_id' => $this->user->id, 'type' => 'events', 'message' => "Вы успешно подписаны на ивент"
-            ]);
+                Notification::create([
+                    'user_id' => $this->user->id, 'type' => 'events', 'message' => "Вы успешно подписаны на ивент"
+                ]);
 
-            //$this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Вы успешно подписаны на ивент");
+                $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Вы успешно подписаны на ивент");
 
-            return response()->json('Вы успешно подписаны на ивент', 200, [], JSON_UNESCAPED_UNICODE);
-        } else {
-            Notification::create([
-                'user_id' => $this->user->id, 'type' => 'events', 'message' => "Ждите подтверждение от модератора"
-            ]);
+                DB::commit();
+                return response()->json('Вы успешно подписаны на ивент', 200, [], JSON_UNESCAPED_UNICODE);
+            } else {
+                Notification::create([
+                    'user_id' => $this->user->id, 'type' => 'events', 'message' => "Ждите подтверждение от модератора"
+                ]);
 
-            $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Ждите подтверждение от модератора");
-            return response()->json('Ждите подтверждение от модератора', 200, [], JSON_UNESCAPED_UNICODE);
+                $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Ждите подтверждение от модератора");
+
+                DB::commit();
+
+                return response()->json('Ждите подтверждение от модератора', 200, [], JSON_UNESCAPED_UNICODE);
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return response()->json($exception->getMessage(), 400, [], JSON_UNESCAPED_UNICODE);
         }
     }
 
@@ -195,9 +206,9 @@ class EventController extends BaseApiController
 
     public function getRequestsForSubscribe(): \Illuminate\Http\JsonResponse
     {
-        $result = Event::where(['event_participants.status' => 'waiting', 'events.user_id' => $this->user->id])
+        $result = Event::where([/*'event_participants.status' => 'waiting', */'events.user_id' => $this->user->id])
             ->with('group', 'images')
-            ->selectRaw('events.*, event_participants.user_id as subscribe_user_id, event_participants.event_id')
+            ->selectRaw('events.*, event_participants.user_id as subscribe_user_id, event_participants.event_id, event_participants.status')
             ->join('event_participants', 'events.id', '=', 'event_participants.event_id')
             ->get();
 
@@ -205,12 +216,18 @@ class EventController extends BaseApiController
 
         foreach($result as $item) {
             if(array_key_exists($item->event_id, $events)) {
-                $events[$item->event_id]['users'][] = User::with('profile')->findOrFail($item->subscribe_user_id);
+                $user = User::with('profile')->findOrFail($item->subscribe_user_id);
+                $user = $user->toArray();
+                $user['status'] = $item->status;
+                $events[$item->event_id]['users'][] = $user;
             } else {
                 $events[$item->event_id] = $item->toArray();
                 $user = User::with('profile')->findOrFail($item->subscribe_user_id);
+                $user = $user->toArray();
+                $user['status'] = $item->status;
                 $events[$item->event_id]['users'][] = $user;
             }
+            unset($events[$item->event_id]['status']);
         }
 
         $events = array_values($events);

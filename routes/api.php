@@ -8,6 +8,7 @@ use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\PromotionController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,6 +78,10 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
 
         # Загрузка файлов
         Route::post('image/upload', [UserController::class, 'uploadImage']);
+
+        # Notification
+        Route::get('get-notification-types', [NotificationController::class, 'getNotificationTypes']);
+        Route::get('notification/{type}', [NotificationController::class, 'getNotification']);
     });
 });
 
