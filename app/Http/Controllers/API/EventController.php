@@ -100,7 +100,7 @@ class EventController extends BaseApiController
                 'user_id' => $this->user->id, 'type' => 'events', 'message' => "Вы успешно подписаны на ивент"
             ]);
 
-            $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Вы успешно подписаны на ивент");
+            //$this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Вы успешно подписаны на ивент");
 
             return response()->json('Вы успешно подписаны на ивент', 200, [], JSON_UNESCAPED_UNICODE);
         } else {
@@ -197,6 +197,7 @@ class EventController extends BaseApiController
     {
         $result = Event::where(['event_participants.status' => 'waiting', 'events.user_id' => $this->user->id])
             ->with('group', 'images')
+            ->selectRaw('events.*, event_participants.user_id as subscribe_user_id, event_participants.event_id')
             ->join('event_participants', 'events.id', '=', 'event_participants.event_id')
             ->get();
 
@@ -204,10 +205,10 @@ class EventController extends BaseApiController
 
         foreach($result as $item) {
             if(array_key_exists($item->event_id, $events)) {
-                $events[$item->event_id]['users'][] = User::with('profile')->findOrFail($item->user_id);
+                $events[$item->event_id]['users'][] = User::with('profile')->findOrFail($item->subscribe_user_id);
             } else {
                 $events[$item->event_id] = $item->toArray();
-                $user = User::with('profile')->findOrFail($item->user_id);
+                $user = User::with('profile')->findOrFail($item->subscribe_user_id);
                 $events[$item->event_id]['users'][] = $user;
             }
         }
