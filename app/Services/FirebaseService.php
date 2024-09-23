@@ -12,7 +12,7 @@ class FirebaseService
     public function __construct()
     {
         $this->googleClient = new GoogleClient();
-        $this->googleClient->setAuthConfig(public_path('saparline-studenta-634b1bd16a37.json'));
+        $this->googleClient->setAuthConfig(public_path('files/saparline-studenta.json'));
         $this->googleClient->addScope('https://www.googleapis.com/auth/firebase.messaging');
 
         $this->httpClient = new Client();
