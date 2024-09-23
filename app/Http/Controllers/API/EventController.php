@@ -112,7 +112,7 @@ class EventController extends BaseApiController
                     'user_id' => $this->user->id, 'type' => 'events', 'message' => "Ждите подтверждение от модератора"
                 ]);
 
-                $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Ждите подтверждение от модератора");
+                $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', ['text' => "Ждите подтверждение от модератора"]);
 
                 DB::commit();
 
