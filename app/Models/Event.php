@@ -12,7 +12,7 @@ class Event extends Model
 
     protected $fillable = [
         'user_id', 'group_id', 'name', 'description', 'address', 'two_gis', 'start_date', 'end_date',
-        'type', 'cost', 'count_place', 'kaspi_name', 'kaspi_phone'
+        'type', 'cost', 'count_place', 'kaspi_name', 'kaspi_phone', 'image_id'
     ];
 
     protected $dates = [
@@ -29,9 +29,9 @@ class Event extends Model
         return $this->belongsTo(Group::class);
     }
 
-    public function images()
+    public function image()
     {
-        return $this->hasMany(EventImage::class);
+        return $this->belongsTo(ImageUpload::class);
     }
 
     public function subscribes()

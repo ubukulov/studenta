@@ -12,7 +12,7 @@ class GroupController extends BaseApiController
 {
     public function groups(): \Illuminate\Http\JsonResponse
     {
-        $groups = Group::with('user', 'images', 'events', 'categories')
+        $groups = Group::with('user', 'image', 'events', 'categories')
             ->select([
                 'groups.*',
                 DB::raw('(COUNT(*)) as subscribes')
@@ -47,7 +47,7 @@ class GroupController extends BaseApiController
 
     public function getGroupById($id)
     {
-        $group = Group::with('user', 'category', 'images', 'events')->findOrFail($id);
+        $group = Group::with('user', 'categories', 'image', 'events')->findOrFail($id);
         $group['subscribe'] = (Group::isSubscribe($this->user->id, $id)) ? true : false;
         return response()->json($group);
     }

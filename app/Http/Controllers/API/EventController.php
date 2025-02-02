@@ -14,9 +14,9 @@ class EventController extends BaseApiController
 {
     public function events(): \Illuminate\Http\JsonResponse
     {
-        $events = Event::with('user', 'group', 'images')
+        $events = Event::with('user', 'group', 'image')
             ->selectRaw('events.*, event_participants.status')
-            ->join('event_participants', 'events.id', '=', 'event_participants.event_id')
+            ->leftJoin('event_participants', 'events.id', '=', 'event_participants.event_id')
             ->get();
         foreach($events as $event) {
             $event['participants'] = $event->getSubscribesCount();
@@ -29,7 +29,7 @@ class EventController extends BaseApiController
 
     public function getEventById($id): \Illuminate\Http\JsonResponse
     {
-        $event = Event::with('user', 'group', 'images')->findOrFail($id);
+        $event = Event::with('user', 'group', 'image')->findOrFail($id);
         return response()->json($event);
     }
 

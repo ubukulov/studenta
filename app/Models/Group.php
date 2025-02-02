@@ -10,7 +10,7 @@ class Group extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'category_id', 'name', 'description', 'instagram', 'whatsapp', 'telegram'
+        'user_id', 'category_id', 'image_id', 'name', 'description', 'instagram', 'whatsapp', 'telegram'
     ];
 
     protected $dates = [
@@ -22,9 +22,9 @@ class Group extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function images()
+    public function image()
     {
-        return $this->hasMany(GroupImage::class);
+        return $this->belongsTo(ImageUpload::class);
     }
 
     public function events()
