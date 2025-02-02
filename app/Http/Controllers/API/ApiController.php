@@ -103,8 +103,8 @@ class ApiController extends Controller
             ConfirmationCode::confirm($data['email'], $data['code']);
             $confirmation_code = ConfirmationCode::where(['email' => $data['email'], 'code' => $data['code']])->first();
             $user = User::create([
-                'name' => $data['name'], 'email' => $data['email'], 'password' => bcrypt($confirmation_code->password),
-                'device_token' => $data['device_token']
+                'name' => $data['name'] ?? null, 'email' => $data['email'], 'password' => bcrypt($confirmation_code->password),
+                'device_token' => $data['device_token'] ?? null
             ]);
 
             $token = $user->createToken('API TOKEN')->plainTextToken;
