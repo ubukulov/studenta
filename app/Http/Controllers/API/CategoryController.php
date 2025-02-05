@@ -8,18 +8,22 @@ use Illuminate\Http\Request;
 
 class CategoryController extends BaseApiController
 {
-    public function addCategory(Request $request)
+    public function addCategory(Request $request): \Illuminate\Http\JsonResponse
     {
-        $request->validate([
-            'name' => 'required',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required',
+            ]);
 
-        Category::create($request->all());
+            Category::create($request->all());
 
-        return response()->json('Категория успешно создано', 200, [], JSON_UNESCAPED_UNICODE);
+            return response()->json('Категория успешно создано', 200, [], JSON_UNESCAPED_UNICODE);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json($e->validator->errors(), 400);
+        }
     }
 
-    public function updateCategory(Request $request, $id)
+    public function updateCategory(Request $request, $id): \Illuminate\Http\JsonResponse
     {
         $category = Category::findOrFail($id);
 

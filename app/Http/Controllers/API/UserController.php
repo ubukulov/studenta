@@ -86,61 +86,73 @@ class UserController extends BaseApiController
 
     public function changePassword(Request $request): \Illuminate\Http\JsonResponse
     {
-        $request->validate([
-            'current_password' => 'required|string',
-            'new_password' => 'required|min:8|string'
-        ]);
+        try {
+            $request->validate([
+                'current_password' => 'required|string',
+                'new_password' => 'required|min:8|string'
+            ]);
 
-        $user = $this->user;
+            $user = $this->user;
 
-        if(!Hash::check($request->get('current_password'), $this->user->password)) {
-            return response()->json('Текущий пароль не правильно', 400, [], JSON_UNESCAPED_UNICODE);
+            if(!Hash::check($request->get('current_password'), $this->user->password)) {
+                return response()->json('Текущий пароль не правильно', 400, [], JSON_UNESCAPED_UNICODE);
+            }
+
+            if(strcmp($request->get('current_password'), $request->get('new_password')) == 0) {
+                return response()->json('Новый пароль не должен соответствовать текущему', 400, [], JSON_UNESCAPED_UNICODE);
+            }
+
+            $user->password = Hash::make($request->get('new_password'));
+            $user->save();
+
+            return response()->json('Пароль изменился успешно', 200, [], JSON_UNESCAPED_UNICODE);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
         }
-
-        if(strcmp($request->get('current_password'), $request->get('new_password')) == 0) {
-            return response()->json('Новый пароль не должен соответствовать текущему', 400, [], JSON_UNESCAPED_UNICODE);
-        }
-
-        $user->password = Hash::make($request->get('new_password'));
-        $user->save();
-
-        return response()->json('Пароль изменился успешно', 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function uploadImage(Request $request): \Illuminate\Http\JsonResponse
     {
-        $request->validate([
-            'image' => 'required',
-        ]);
+        try {
+            $request->validate([
+                'image' => 'required',
+            ]);
 
-        $image = $request->file('image');
-        $ext = $image->getClientOriginalExtension();
-        $name = md5(time()) . '.' . $ext;
-        $path = '/upload/images/';
-        $dir = public_path() . $path;
-        $image->move($dir, $name);
+            $image = $request->file('image');
+            $ext = $image->getClientOriginalExtension();
+            $name = md5(time()) . '.' . $ext;
+            $path = '/upload/images/';
+            $dir = public_path() . $path;
+            $image->move($dir, $name);
 
-        $imageUpload = ImageUpload::create([
-            'user_id' => $this->user->id, 'image' => env('APP_URL') . $path.$name
-        ]);
+            $imageUpload = ImageUpload::create([
+                'user_id' => $this->user->id, 'image' => env('APP_URL') . $path.$name
+            ]);
 
-        return response()->json($imageUpload, 200, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($imageUpload, 200, [], JSON_UNESCAPED_UNICODE);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
+        }
     }
 
     public function deleteAvatar(Request $request): \Illuminate\Http\JsonResponse
     {
-        $request->validate([
-            'image_id' => 'required'
-        ]);
+        try {
+            $request->validate([
+                'image_id' => 'required'
+            ]);
 
-        if(ImageUpload::get($this->user->id, $request->get('image_id'))) {
-            ImageUpload::destroy($request->get('image_id'));
+            if(ImageUpload::get($this->user->id, $request->get('image_id'))) {
+                ImageUpload::destroy($request->get('image_id'));
 
-            UserProfile::resetAvatar($this->user);
+                UserProfile::resetAvatar($this->user);
 
-            return response()->json('Фото успешно удалено', 200, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Фото успешно удалено', 200, [], JSON_UNESCAPED_UNICODE);
+            }
+
+            return response()->json('Не найдено фото с таким ид', 404, [], JSON_UNESCAPED_UNICODE);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
         }
-
-        return response()->json('Не найдено фото с таким ид', 404, [], JSON_UNESCAPED_UNICODE);
     }
 }

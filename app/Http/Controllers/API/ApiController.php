@@ -178,7 +178,7 @@ class ApiController extends Controller
         }
     }
 
-    public function promotions()
+    public function promotions(): \Illuminate\Http\JsonResponse
     {
         $promotions = Promotion::orderBy('size', 'DESC')
             ->with('category', 'organization', 'images')
@@ -188,7 +188,7 @@ class ApiController extends Controller
 
     public function getEvents(): \Illuminate\Http\JsonResponse
     {
-        $events = Event::with('user', 'group', 'images')
+        $events = Event::with('user', 'group', 'image')
             ->get();
 
         return response()->json($events);
@@ -196,7 +196,7 @@ class ApiController extends Controller
 
     public function getGroups(): \Illuminate\Http\JsonResponse
     {
-        $groups = Group::with('user', 'categories', 'images', 'events')
+        $groups = Group::with('user', 'categories', 'image', 'events')
             ->select([
                 'groups.*',
                 DB::raw('(COUNT(*)) as subscribes')
