@@ -48,9 +48,9 @@ class NotificationController extends BaseApiController
         return response()->json($notifications);
     }
 
-    public function getNotificationCount(): int
+    public function getNotificationCount($type): int
     {
-        return Notification::where(['user_id' => $this->user->id, 'status' => 'new'])->count();
+        return Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => $type])->count();
     }
 
     public function updateNotification(Request $request): \Illuminate\Http\JsonResponse
