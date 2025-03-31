@@ -19,6 +19,7 @@ class EventController extends BaseApiController
             ->leftJoin('event_participants', 'events.id', '=', 'event_participants.event_id')
             ->get();
         foreach($events as $event) {
+            if($event->user_id == $this->user->id) continue;
             $event['participants'] = $event->getSubscribesCount();
             $event['subscribe'] = EventParticipant::userSubscribed($event->id, $this->user->id);
             unset($event['subscribes']);
@@ -110,7 +111,7 @@ class EventController extends BaseApiController
                     'user_id' => $this->user->id, 'type' => 'events', 'message' => "Вы успешно подписаны на ивент"
                 ]);
 
-                $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Вы успешно подписаны на ивент");
+                //$this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Вы успешно подписаны на ивент");
 
                 DB::commit();
                 return response()->json('Вы успешно подписаны на ивент', 200, [], JSON_UNESCAPED_UNICODE);
@@ -119,7 +120,7 @@ class EventController extends BaseApiController
                     'user_id' => $this->user->id, 'type' => 'events', 'message' => "Ждите подтверждение от модератора"
                 ]);
 
-                $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', ['text' => "Ждите подтверждение от модератора"]);
+                //$this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', ['text' => "Ждите подтверждение от модератора"]);
 
                 DB::commit();
 
