@@ -29,9 +29,12 @@ class EventResource extends Resource
         return $form
             ->schema([
                 Select::make('user_id')
-                    ->relationship('user', 'name') // Нужно чтобы в Event была связь user()
+                    ->relationship('user', 'name')
                     ->required()
-                    ->label('Пользователь'),
+                    ->label('Пользователь')
+                    ->options(function ($query) {
+                        return $query->pluck('name', 'id')->toArray();
+                    }),
 
                 Select::make('group_id')
                     ->relationship('group', 'name') // Нужно чтобы в Event была связь group()
