@@ -55,6 +55,33 @@ class EventResource extends Resource
                     ])
                     ->required()
                     ->label('Тип события'),
+
+                Forms\Components\TextInput::make('name')
+                    ->label('Название')
+                    ->required(),
+
+                Forms\Components\Textarea::make('description')
+                    ->label('Описание')
+                    ->rows(3),
+
+                Forms\Components\TextInput::make('address')
+                    ->label('Адрес'),
+
+                Forms\Components\TextInput::make('two_gis')
+                    ->label('2GIS'),
+
+                Forms\Components\TextInput::make('cost')
+                    ->label('Стоимость')
+                    ->visible(fn (callable $get) => $get('type') === 'paid'),
+
+                Forms\Components\TextInput::make('count_place')
+                    ->label('Кол-во мест'),
+
+                Forms\Components\TextInput::make('kaspi_phone')
+                    ->label('Kaspi Телефон'),
+
+                Forms\Components\TextInput::make('kaspi_name')
+                    ->label('Kaspi Имя'),
             ]);
     }
 
@@ -62,6 +89,7 @@ class EventResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('user.name')->label('Пользователь'),
                 Tables\Columns\TextColumn::make('group.name')->label('Группа'),
                 Tables\Columns\TextColumn::make('start_date')->label('Начало'),
