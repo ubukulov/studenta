@@ -8,6 +8,7 @@ use App\Models\Event;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\View;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
@@ -54,17 +55,13 @@ class EventResource extends Resource
                     ->label('Тип события'),
 
                 Select::make('image_id')
-                    ->relationship('image', 'image')
+                    ->relationship('image', 'image') // здесь 'image' — это поле в таблице image_uploads
                     ->label('Изображение')
                     ->searchable()
-                    ->reactive() // чтобы перерисовывался при выборе
-                    ->afterStateUpdated(fn ($state, Forms\Set $set) => $set('selected_image_url', $state)),
+                    ->reactive(), // обязательно, чтобы срабатывала реакция на выбор
 
-                Forms\Components\View::make('components.image-preview')
-                    ->visible(fn ($get) => filled($get('image_id')))
-                    ->viewData(fn ($get) => [
-                        'image' => $get('image_id') ? \App\Models\ImageUpload::find($get('image_id'))->image : null,
-                    ]),
+                View::make('components.image-preview')
+                    ->visible(fn ($get) => filled($get('image_id'))), // показывать только если выбран image_id
             ]);
     }
 
