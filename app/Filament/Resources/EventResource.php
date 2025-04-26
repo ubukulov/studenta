@@ -55,7 +55,7 @@ class EventResource extends Resource
                     ->label('Тип события'),
 
                 Select::make('image_id')
-                    ->relationship('image', 'image') // здесь 'image' — это поле в таблице image_uploads
+                    ->relationship('image', 'filename') // здесь 'image' — это поле в таблице image_uploads
                     ->label('Изображение')
                     ->searchable()
                     ->reactive(), // обязательно, чтобы срабатывала реакция на выбор
