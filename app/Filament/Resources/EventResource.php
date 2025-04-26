@@ -53,15 +53,6 @@ class EventResource extends Resource
                     ])
                     ->required()
                     ->label('Тип события'),
-
-                Select::make('image_id')
-                    ->relationship('image', 'filename') // здесь 'image' — это поле в таблице image_uploads
-                    ->label('Изображение')
-                    ->searchable()
-                    ->reactive(), // обязательно, чтобы срабатывала реакция на выбор
-
-                View::make('components.image-preview')
-                    ->visible(fn ($get) => filled($get('image_id'))), // показывать только если выбран image_id
             ]);
     }
 
@@ -81,10 +72,19 @@ class EventResource extends Resource
                     ->label('Тип'),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('type')
+                    ->options([
+                        'free' => 'Бесплатно',
+                        'paid' => 'Платно',
+                    ]),
+
+                Tables\Filters\SelectFilter::make('user_id')
+                    ->relationship('user', 'name')
+                    ->searchable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
