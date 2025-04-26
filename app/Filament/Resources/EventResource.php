@@ -31,10 +31,7 @@ class EventResource extends Resource
                 Select::make('user_id')
                     ->relationship('user', 'name') // Связь с пользователем
                     ->required()
-                    ->label('Пользователь')
-                    ->options(function ($query) {
-                        return $query->whereNotNull('name')->pluck('name', 'id');
-                    }),
+                    ->label('Пользователь'),
 
                 Select::make('group_id')
                     ->relationship('group', 'name') // Нужно чтобы в Event была связь group()
@@ -84,9 +81,6 @@ class EventResource extends Resource
                 Tables\Filters\SelectFilter::make('user_id')
                     ->relationship('user', 'name')
                     ->label('Пользователь')
-                    ->options(function ($query) {
-                        return $query->whereNotNull('name')->pluck('name', 'id');
-                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
