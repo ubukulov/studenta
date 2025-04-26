@@ -54,13 +54,17 @@ class EventResource extends Resource
                     ->label('Тип события'),
 
                 Select::make('image_id')
-                    ->relationship('image', 'image') // поле "image" - это путь к картинке
+                    ->relationship('image', 'image')
                     ->label('Изображение')
                     ->searchable()
-                    ->getOptionLabelFromRecordUsing(function ($record) {
-                        return view('components.image-select-option', ['image' => $record->image])->render();
-                    })
-                    ->disableLabel() // если не хочешь дублировать название
+                    ->reactive() // чтобы перерисовывался при выборе
+                    ->afterStateUpdated(fn ($state, Forms\Set $set) => $set('selected_image_url', $state)),
+
+                Forms\Components\View::make('components.image-preview')
+                    ->visible(fn ($get) => filled($get('image_id')))
+                    ->viewData(fn ($get) => [
+                        'image' => $get('image_id') ? \App\Models\ImageUpload::find($get('image_id'))->image : null,
+                    ]),
             ]);
     }
 
