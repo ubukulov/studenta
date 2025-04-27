@@ -15,7 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
 use App\Models\ImageUpload;
-use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -93,8 +93,9 @@ class EventResource extends Resource
                     ->preload()
                     ->required(),
 
-                Placeholder::make('image_preview')
+                TextInput::make('image_preview')
                     ->label('Превью изображения')
+                    ->disabled() // делаем поле не редактируемым
                     ->content(function (callable $get) {
                         $imageId = $get('image_id');
 
