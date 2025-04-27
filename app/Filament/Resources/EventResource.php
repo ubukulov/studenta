@@ -13,6 +13,7 @@ use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use App\Models\ImageUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -82,6 +83,13 @@ class EventResource extends Resource
 
                 Forms\Components\TextInput::make('kaspi_name')
                     ->label('Kaspi Имя'),
+
+                Select::make('image_id')
+                    ->label('Изображение')
+                    ->options(ImageUpload::pluck('image', 'id'))
+                    ->searchable()
+                    ->preload()
+                    ->required(),
             ]);
     }
 
