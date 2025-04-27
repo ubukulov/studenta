@@ -96,7 +96,7 @@ class EventResource extends Resource
                 TextInput::make('image_preview')
                     ->label('Превью изображения')
                     ->disabled() // делаем поле не редактируемым
-                    ->content(function (callable $get) {
+                    ->default(function (callable $get) {
                         $imageId = $get('image_id');
 
                         if (!$imageId) {
@@ -109,10 +109,9 @@ class EventResource extends Resource
                             return 'Картинка не найдена';
                         }
 
-                        return '<img src="' . asset('storage/' . $image->image) . '" style="max-width: 200px; height: auto; border-radius: 10px;">';
+                        return asset('storage/' . $image->image); // Показываем путь к картинке как текст
                     })
                     ->visible(fn (callable $get) => filled($get('image_id')))
-                    ->toHtml()
             ]);
     }
 
