@@ -7,6 +7,7 @@ use App\Filament\Resources\EventResource\RelationManagers;
 use App\Models\Event;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\View;
 use Filament\Resources\Form;
@@ -90,24 +91,20 @@ class EventResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),*/
-                Select::make('image_id')
-                    ->label('Изображение')
-                    ->searchable()
-                    ->preload()
+                Radio::make('image_id')
+                    ->label('Выберите изображение')
                     ->options(
-                        ImageUpload::all()->pluck('id')->mapWithKeys(function ($id) {
-                            $image = ImageUpload::find($id);
-
+                        ImageUpload::all()->mapWithKeys(function ($image) {
                             return [
-                                $id => '<div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="' . asset('storage/' . $image->path) . '" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
-                            <span>' . $image->name . '</span>
-                        </div>',
+                                $image->id => '<img src="' . asset('storage/' . $image->path) . '" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">',
                             ];
                         })->toArray()
                     )
-                    ->html() // чтобы разрешить HTML внутри опций
+                    ->columns(4) // Количество столбцов для сетки
                     ->required()
+                    ->inline(false) // показывать как сетку, а не в одну строку
+                    ->helperText('Кликните по картинке для выбора') // текст-подсказка
+                    ->html()
             ]);
     }
 
