@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
 use App\Models\ImageUpload;
+use Filament\Forms\Components\Placeholder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -91,6 +92,27 @@ class EventResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
+
+                Placeholder::make('image_preview')
+                    ->label('Превью изображения')
+                    ->content(function (callable $get) {
+                        $imageId = $get('image_id');
+
+                        if (!$imageId) {
+                            return 'Картинка не выбрана';
+                        }
+
+                        $image = ImageUpload::find($imageId);
+
+                        if (!$image) {
+                            return 'Картинка не найдена';
+                        }
+
+                        return '<img src="' . asset('storage/' . $image->image) . '" style="max-width: 200px; height: auto; border-radius: 10px;">';
+                    })
+                    ->extraAttributes(['class' => 'flex justify-center'])
+                    ->visible(fn (callable $get) => filled($get('image_id')))
+                    ->html()
             ]);
     }
 
