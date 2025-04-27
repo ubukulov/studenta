@@ -84,12 +84,34 @@ class EventResource extends Resource
                 Forms\Components\TextInput::make('kaspi_name')
                     ->label('Kaspi Имя'),
 
-                Select::make('image_id')
+                /*Select::make('image_id')
                     ->label('Изображение')
                     ->options(ImageUpload::pluck('image', 'id'))
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required(),*/
+                Select::make('image_id')
+                    ->label('Изображение')
+                    ->searchable()
+                    ->preload()
+                    ->options(
+                        ImageUpload::all()->pluck('id')->mapWithKeys(function ($id) {
+                            $image = ImageUpload::find($id);
+
+                            return [
+                                $id => '<div style="display: flex; align-items: center; gap: 8px;">
+                            <img src="' . asset('storage/' . $image->path) . '" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
+                            <span>' . $image->name . '</span>
+                        </div>',
+                            ];
+                        })->toArray()
+                    )
+                    ->disableLabel()
+                    ->disablePlaceholder()
+                    ->extraAttributes(['class' => 'text-start'])
+                    ->hint('Выберите изображение')
+                    ->html() // Важно! Чтобы HTML внутри options отработал
+                    ->required()
             ]);
     }
 
