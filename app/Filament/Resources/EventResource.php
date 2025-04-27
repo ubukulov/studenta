@@ -51,6 +51,7 @@ class EventResource extends Resource
                         'free' => 'Бесплатный',
                         'paid' => 'Платный',
                     ])
+                    ->reactive()
                     ->required()
                     ->label('Тип события'),
 
