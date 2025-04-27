@@ -31,13 +31,11 @@ class EventResource extends Resource
                 Select::make('user_id')
                     ->relationship('user', 'name') // Связь с пользователем
                     ->required()
-                    ->searchable()
                     ->label('Пользователь'),
 
                 Select::make('group_id')
                     ->relationship('group', 'name') // Нужно чтобы в Event была связь group()
                     ->required()
-                    ->searchable()
                     ->label('Группа'),
 
                 DateTimePicker::make('start_date')
