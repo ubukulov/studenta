@@ -106,11 +106,7 @@ class EventResource extends Resource
                             ];
                         })->toArray()
                     )
-                    ->disableLabel()
-                    ->disablePlaceholder()
-                    ->extraAttributes(['class' => 'text-start'])
-                    ->hint('Выберите изображение')
-                    ->html() // Важно! Чтобы HTML внутри options отработал
+                    ->html() // чтобы разрешить HTML внутри опций
                     ->required()
             ]);
     }
