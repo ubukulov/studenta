@@ -70,7 +70,8 @@ class EventResource extends Resource
 
                 Forms\Components\TextInput::make('cost')
                     ->label('Стоимость')
-                    ->hidden(fn (callable $get) => $get('type') == 'Бесплатный'),
+                    ->default(0)
+                    ->hidden(fn (callable $get) => $get('type') == 'free'),
 
                 Forms\Components\TextInput::make('count_place')
                     ->label('Кол-во мест'),
