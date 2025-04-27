@@ -110,9 +110,8 @@ class EventResource extends Resource
 
                         return '<img src="' . asset('storage/' . $image->image) . '" style="max-width: 200px; height: auto; border-radius: 10px;">';
                     })
-                    ->extraAttributes(['class' => 'flex justify-center'])
                     ->visible(fn (callable $get) => filled($get('image_id')))
-                    ->html()
+                    ->toHtml()
             ]);
     }
 
