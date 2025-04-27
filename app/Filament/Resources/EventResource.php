@@ -85,26 +85,12 @@ class EventResource extends Resource
                 Forms\Components\TextInput::make('kaspi_name')
                     ->label('Kaspi Имя'),
 
-                /*Select::make('image_id')
+                Select::make('image_id')
                     ->label('Изображение')
                     ->options(ImageUpload::pluck('image', 'id'))
                     ->searchable()
                     ->preload()
-                    ->required(),*/
-                Radio::make('image_id')
-                    ->label('Выберите изображение')
-                    ->options(
-                        ImageUpload::all()->mapWithKeys(function ($image) {
-                            return [
-                                $image->id => '<img src="' . asset('storage/' . $image->path) . '" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">',
-                            ];
-                        })->toArray()
-                    )
-                    ->columns(4) // Количество столбцов для сетки
-                    ->required()
-                    ->inline(false) // показывать как сетку, а не в одну строку
-                    ->helperText('Кликните по картинке для выбора') // текст-подсказка
-                    ->html()
+                    ->required(),
             ]);
     }
 
