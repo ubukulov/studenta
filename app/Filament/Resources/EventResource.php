@@ -33,13 +33,16 @@ class EventResource extends Resource
             ->schema([
                 Select::make('user_id')
                     ->relationship('user', 'name') // Связь с пользователем
+                    ->getOptionLabelUsing(function ($user) {
+                        return $user->name ?? 'Без имени'; // Если имя null, отображается "Без имени"
+                    })
                     ->required()
                     ->label('Пользователь'),
 
-                /*Select::make('group_id')
+                Select::make('group_id')
                     ->relationship('group', 'name') // Нужно чтобы в Event была связь group()
                     ->required()
-                    ->label('Группа'),*/
+                    ->label('Группа'),
 
                 DateTimePicker::make('start_date')
                     ->required()
