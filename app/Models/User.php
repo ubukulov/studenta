@@ -54,4 +54,9 @@ class User extends Authenticatable
     {
         return (bool) $user->profile;
     }
+
+    public function getNameAttribute($value)
+    {
+        return $value ?? 'Без имени';
+    }
 }

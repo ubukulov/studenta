@@ -34,7 +34,7 @@ class EventResource extends Resource
                 Select::make('user_id')
                     ->relationship('user', 'name') // Связь с пользователем
                     ->getOptionLabelUsing(function ($user) {
-                        return $user->name ?? 'Без имени'; // Если имя null, отображается "Без имени"
+                        return optional($user)->name ?? 'Без имени';
                     })
                     ->required()
                     ->label('Пользователь'),
