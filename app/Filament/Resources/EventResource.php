@@ -88,7 +88,9 @@ class EventResource extends Resource
 
                 Select::make('image_id')
                     ->label('Изображение')
-                    ->options(ImageUpload::pluck('image', 'id'))
+                    ->options(
+                        ImageUpload::pluck('image', 'id')->filter()->toArray()
+                    )
                     ->searchable()
                     ->preload()
                     ->required(),
