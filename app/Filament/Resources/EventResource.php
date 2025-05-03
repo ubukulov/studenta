@@ -86,7 +86,7 @@ class EventResource extends Resource
                 Forms\Components\TextInput::make('kaspi_name')
                     ->label('Kaspi Имя'),
 
-                Select::make('image_id')
+                /*Select::make('image_id')
                     ->label('Изображение')
                     ->options(
                         ImageUpload::all()
@@ -118,7 +118,7 @@ class EventResource extends Resource
 
                         return asset('storage/' . $image->image); // Показываем путь к картинке как текст
                     })
-                    ->visible(fn (callable $get) => filled($get('image_id')))
+                    ->visible(fn (callable $get) => filled($get('image_id')))*/
             ]);
     }
 
