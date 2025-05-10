@@ -49,7 +49,7 @@ class EventController extends BaseApiController
 
             return response()->json('Event успешно создан', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
         }
     }
 
@@ -59,7 +59,7 @@ class EventController extends BaseApiController
             $event = Event::findOrFail($id);
 
             if($event->user_id != $this->user->id) {
-                return response()->json('Ивент не ваша.', 400, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Ивент не ваша.', 403, [], JSON_UNESCAPED_UNICODE);
             }
 
             $request->validate([
@@ -71,15 +71,15 @@ class EventController extends BaseApiController
 
             return response()->json('Ивент успешно обновлен', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
         }
     }
 
     public function delete($id): \Illuminate\Http\JsonResponse
     {
-        $event = Event::findOrFail($id);
+        $event = Event::find($id);
         if(!$event) {
-            return response()->json('Ивент уже удалено', 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json('Ивент уже удалено', 404, [], JSON_UNESCAPED_UNICODE);
         }
 
         Event::destroy($id);
@@ -100,7 +100,7 @@ class EventController extends BaseApiController
 
             if(EventParticipant::userSubscribed($event_id, $this->user->id)) {
                 DB::commit();
-                return response()->json('Вы уже подписаны на этот ивент', 400, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Вы уже подписаны на этот ивент', 409, [], JSON_UNESCAPED_UNICODE);
             }
 
             EventParticipant::subscribe($event_id, $this->user->id, $event);
@@ -128,7 +128,7 @@ class EventController extends BaseApiController
             }
         } catch (\Exception $exception) {
             DB::rollBack();
-            return response()->json($exception->getMessage(), 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($exception->getMessage(), 500, [], JSON_UNESCAPED_UNICODE);
         }
     }
 
@@ -145,10 +145,10 @@ class EventController extends BaseApiController
                 Event::unSubscribe($event_id, $this->user->id);
                 return response()->json('Вы успешно отписались от ивента', 200, [], JSON_UNESCAPED_UNICODE);
             } else {
-                return response()->json('Вы не подписаны на ивент чтобы отписаться', 400, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Вы не подписаны на ивент чтобы отписаться', 409, [], JSON_UNESCAPED_UNICODE);
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
         }
     }
 
@@ -185,15 +185,15 @@ class EventController extends BaseApiController
             $event = Event::findOrFail($event_id);
 
             if($event->type == 'free') {
-                return response()->json("Для ивентов с типом БЕСПЛАТНО не нужно подтверждать подписки", 400, [], JSON_UNESCAPED_UNICODE);
+                return response()->json("Для ивентов с типом БЕСПЛАТНО не нужно подтверждать подписки", 409, [], JSON_UNESCAPED_UNICODE);
             }
 
             $event_participant = EventParticipant::where(['event_id' => $event_id, 'user_id' => $user_id])->first();
             if($event_participant) {
                 if($event_participant->status == 'confirmed') {
-                    return response()->json("Вы уже подтверждили подписку", 400, [], JSON_UNESCAPED_UNICODE);
+                    return response()->json("Вы уже подтверждили подписку", 409, [], JSON_UNESCAPED_UNICODE);
                 } else if($event_participant->status == 'rejected') {
-                    return response()->json("Вы уже отклонили подписку", 400, [], JSON_UNESCAPED_UNICODE);
+                    return response()->json("Вы уже отклонили подписку", 409, [], JSON_UNESCAPED_UNICODE);
                 } else {
                     $event_participant->status = $status;
                     $event_participant->save();
@@ -208,7 +208,7 @@ class EventController extends BaseApiController
                 return response()->json("Не найдено запись для подтверждение подписки", 404, [], JSON_UNESCAPED_UNICODE);
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
         }
     }
 

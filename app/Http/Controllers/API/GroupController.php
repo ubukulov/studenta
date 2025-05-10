@@ -58,7 +58,7 @@ class GroupController extends BaseApiController
             $groups = Group::where(['user_id' => $this->user->id])
                 ->get();
             if(count($groups) >= 3) {
-                return response()->json('Максимальное количество групп 3', 400);
+                return response()->json('Максимальное количество групп 3', 409);
             }
 
             $request->validate([
@@ -79,7 +79,7 @@ class GroupController extends BaseApiController
 
             return response()->json('Группа успешно создан', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400);
+            return response()->json($e->validator->errors(), 422);
         }
     }
 
@@ -89,7 +89,7 @@ class GroupController extends BaseApiController
             $group = Group::findOrFail($id);
 
             if($group->user_id != $this->user->id) {
-                return response()->json('Это группа не ваша.', 400, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Это группа не ваша.', 409, [], JSON_UNESCAPED_UNICODE);
             }
 
             $request->validate([
@@ -109,15 +109,15 @@ class GroupController extends BaseApiController
 
             return response()->json('Группа успешно обновлен', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400);
+            return response()->json($e->validator->errors(), 422);
         }
     }
 
     public function delete($id)
     {
-        $group = Group::findOrFail($id);
+        $group = Group::find($id);
         if(!$group) {
-            return response()->json('Группа уже удалено', 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json('Группа уже удалено', 409, [], JSON_UNESCAPED_UNICODE);
         }
 
         Group::destroy($id);
@@ -135,13 +135,13 @@ class GroupController extends BaseApiController
             $group_id = $request->input('group_id');
 
             if(Group::isSubscribe($this->user->id, $group_id)) {
-                return response()->json('Вы уже подписаны на эту группу', 400, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Вы уже подписаны на эту группу', 409, [], JSON_UNESCAPED_UNICODE);
             } else {
                 Group::subscribe($this->user->id, $group_id);
                 return response()->json('Вы успешно подписаны на группу', 200, [], JSON_UNESCAPED_UNICODE);
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400);
+            return response()->json($e->validator->errors(), 422);
         }
     }
 
@@ -158,10 +158,10 @@ class GroupController extends BaseApiController
                 Group::unSubscribe($group_participant);
                 return response()->json('Вы успешно отписались от группы', 200, [], JSON_UNESCAPED_UNICODE);
             } else {
-                return response()->json('Вы не подписаны на группу чтобы отписаться', 400, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Вы не подписаны на группу чтобы отписаться', 409, [], JSON_UNESCAPED_UNICODE);
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400);
+            return response()->json($e->validator->errors(), 422);
         }
     }
 }

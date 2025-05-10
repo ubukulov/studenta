@@ -39,7 +39,7 @@ class ApiController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Email & Password does not match with our record.',
-                ], 401);
+                ], 422);
             }
 
             $user = User::where('email', $request->email)->first();
@@ -72,7 +72,7 @@ class ApiController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 401);
+                return response()->json(['error' => $validator->errors()], 422);
             }
 
             $input = $request->all();
@@ -112,7 +112,7 @@ class ApiController extends Controller
             return response()->json(['token' => $token], 200, [], JSON_UNESCAPED_UNICODE);
         }
 
-        return response()->json('Неверный код подтверждения', 401, [], JSON_UNESCAPED_UNICODE);
+        return response()->json('Неверный код подтверждения', 422, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function cities(): \Illuminate\Http\JsonResponse
@@ -158,7 +158,7 @@ class ApiController extends Controller
             $email = $request->get('email');
             $user = User::whereEmail($email)->first();
             if (!$user) {
-                return response()->json('Пользователь с таким email не найдено', 403, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Пользователь с таким email не найдено', 404, [], JSON_UNESCAPED_UNICODE);
             }
 
             $new_password = rand(10000000,99999999);

@@ -19,7 +19,7 @@ class CategoryController extends BaseApiController
 
             return response()->json('Категория успешно создано', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400);
+            return response()->json($e->validator->errors(), 422);
         }
     }
 

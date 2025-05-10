@@ -65,7 +65,7 @@ class NotificationController extends BaseApiController
             $notification->save();
             return response()->json('Уведомление прочитано успешно', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
         }
     }
 }

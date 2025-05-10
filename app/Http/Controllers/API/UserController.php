@@ -76,7 +76,7 @@ class UserController extends BaseApiController
     {
         $user_profile = UserProfile::where('user_id', $this->user->id)->first();
         if(!$user_profile) {
-            return response()->json('Профиль уже удалено', 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json('Профиль уже удалено', 409, [], JSON_UNESCAPED_UNICODE);
         }
 
         $user_profile->delete();
@@ -95,11 +95,11 @@ class UserController extends BaseApiController
             $user = $this->user;
 
             if(!Hash::check($request->get('current_password'), $this->user->password)) {
-                return response()->json('Текущий пароль не правильно', 400, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Текущий пароль не правильно', 422, [], JSON_UNESCAPED_UNICODE);
             }
 
             if(strcmp($request->get('current_password'), $request->get('new_password')) == 0) {
-                return response()->json('Новый пароль не должен соответствовать текущему', 400, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Новый пароль не должен соответствовать текущему', 422, [], JSON_UNESCAPED_UNICODE);
             }
 
             $user->password = Hash::make($request->get('new_password'));
@@ -107,7 +107,7 @@ class UserController extends BaseApiController
 
             return response()->json('Пароль изменился успешно', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
         }
     }
 
@@ -131,7 +131,7 @@ class UserController extends BaseApiController
 
             return response()->json($imageUpload, 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
         }
     }
 
@@ -152,7 +152,7 @@ class UserController extends BaseApiController
 
             return response()->json('Не найдено фото с таким ид', 404, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json($e->validator->errors(), 400, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
         }
     }
 }
