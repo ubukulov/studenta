@@ -47,8 +47,10 @@ class GroupController extends BaseApiController
 
     public function getGroupById($id)
     {
-        $group = Group::with('user', 'categories', 'image', 'events')->findOrFail($id);
+        $group = Group::with('user', 'categories', 'image', 'events')
+            ->findOrFail($id);
         $group['subscribe'] = (Group::isSubscribe($this->user->id, $id)) ? true : false;
+        $group['subscribes'] = $group->subscribes()->count();
         return response()->json($group);
     }
 
