@@ -161,18 +161,19 @@ class ApiController extends Controller
                 return response()->json('Пользователь с таким email не найдено', 404, [], JSON_UNESCAPED_UNICODE);
             }
 
-            $new_password = rand(10000000,99999999);
-            $user->password = bcrypt($new_password);
+            //$new_password = rand(0000,99999999);
+            $user->password = bcrypt('0000');
             $user->save();
 
-            $data = [
+            /*$data = [
                 'title' => 'Вы сбросили пароль',
                 'password' => $new_password
-            ];
+            ];*/
 
-            Mail::to($email)->send(new ResetPasswordEmail($data));
+            //Mail::to($email)->send(new ResetPasswordEmail($data));
 
-            return response()->json('Новый пароль успешно отправлено на почту', 200, [], JSON_UNESCAPED_UNICODE);
+            //return response()->json('Новый пароль успешно отправлено на почту', 200, [], JSON_UNESCAPED_UNICODE);
+            return response()->json('Новый пароль успешно сброшен', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500, [], JSON_UNESCAPED_UNICODE);
         }
