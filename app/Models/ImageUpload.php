@@ -28,4 +28,10 @@ class ImageUpload extends Model
     {
         return (bool) ImageUpload::where(['user_id' => $user_id, 'id' => $image_id])->first();
     }
+
+    public function getFilenameAttribute(): string
+    {
+        return basename($this->image); // чтобы было красивое название файла вместо полного пути
+    }
+
 }

@@ -9,6 +9,7 @@
         "ext-curl": "*",
         "ext-json": "*",
         "fakerphp/faker": "^1.23",
+        "filament/filament": "^2.17",
         "fruitcake/laravel-cors": "^2.0",
         "google/apiclient": "^2.16",
         "guzzlehttp/guzzle": "^7.0.1",

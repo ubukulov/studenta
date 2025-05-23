@@ -39,7 +39,7 @@ class ApiController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Email & Password does not match with our record.',
-                ], 401);
+                ], 422);
             }
 
             $user = User::where('email', $request->email)->first();
@@ -72,7 +72,7 @@ class ApiController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 401);
+                return response()->json(['error' => $validator->errors()], 422);
             }
 
             $input = $request->all();
@@ -103,8 +103,8 @@ class ApiController extends Controller
             ConfirmationCode::confirm($data['email'], $data['code']);
             $confirmation_code = ConfirmationCode::where(['email' => $data['email'], 'code' => $data['code']])->first();
             $user = User::create([
-                'name' => $data['name'], 'email' => $data['email'], 'password' => bcrypt($confirmation_code->password),
-                'device_token' => $data['device_token']
+                'name' => $data['name'] ?? null, 'email' => $data['email'], 'password' => bcrypt($confirmation_code->password),
+                'device_token' => $data['device_token'] ?? null
             ]);
 
             $token = $user->createToken('API TOKEN')->plainTextToken;
@@ -112,7 +112,7 @@ class ApiController extends Controller
             return response()->json(['token' => $token], 200, [], JSON_UNESCAPED_UNICODE);
         }
 
-        return response()->json('Неверный код подтверждения', 401, [], JSON_UNESCAPED_UNICODE);
+        return response()->json('Неверный код подтверждения', 422, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function cities(): \Illuminate\Http\JsonResponse
@@ -158,7 +158,7 @@ class ApiController extends Controller
             $email = $request->get('email');
             $user = User::whereEmail($email)->first();
             if (!$user) {
-                return response()->json('Пользователь с таким email не найдено', 403, [], JSON_UNESCAPED_UNICODE);
+                return response()->json('Пользователь с таким email не найдено', 404, [], JSON_UNESCAPED_UNICODE);
             }
 
             $new_password = rand(10000000,99999999);
@@ -178,7 +178,7 @@ class ApiController extends Controller
         }
     }
 
-    public function promotions()
+    public function promotions(): \Illuminate\Http\JsonResponse
     {
         $promotions = Promotion::orderBy('size', 'DESC')
             ->with('category', 'organization', 'images')
@@ -188,7 +188,7 @@ class ApiController extends Controller
 
     public function getEvents(): \Illuminate\Http\JsonResponse
     {
-        $events = Event::with('user', 'group', 'images')
+        $events = Event::with('user', 'group', 'image')
             ->get();
 
         return response()->json($events);
@@ -196,7 +196,7 @@ class ApiController extends Controller
 
     public function getGroups(): \Illuminate\Http\JsonResponse
     {
-        $groups = Group::with('user', 'categories', 'images', 'events')
+        $groups = Group::with('user', 'categories', 'image', 'events')
             ->select([
                 'groups.*',
                 DB::raw('(COUNT(*)) as subscribes')

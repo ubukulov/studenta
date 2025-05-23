@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class PromotionController extends BaseApiController
 {
-    public function promotions()
+    public function promotions(): \Illuminate\Http\JsonResponse
     {
         $promotions = Promotion::orderBy('size', 'DESC')
             ->with('category', 'organization', 'images')
@@ -17,14 +17,14 @@ class PromotionController extends BaseApiController
         return response()->json($promotions);
     }
 
-    public function getPromotionById($id)
+    public function getPromotionById($id): \Illuminate\Http\JsonResponse
     {
         $promotion = Promotion::with('category', 'organization', 'images')
             ->findOrFail($id);
         return response()->json($promotion);
     }
 
-    public function getPromotionImagesById($id)
+    public function getPromotionImagesById($id): \Illuminate\Http\JsonResponse
     {
         $promotion_images = PromotionImage::where(['promotion_id' => $id])->get();
         return response()->json($promotion_images);

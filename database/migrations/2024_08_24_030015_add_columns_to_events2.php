@@ -16,6 +16,7 @@ class AddColumnsToEvents2 extends Migration
         Schema::table('events', function (Blueprint $table) {
             $table->string('kaspi_phone')->nullable();
             $table->string('kaspi_name')->nullable();
+            $table->integer('image_id')->nullable();
         });
     }
 
@@ -27,7 +28,7 @@ class AddColumnsToEvents2 extends Migration
     public function down()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropColumn(['kaspi_phone','kaspi_name']);
+            $table->dropColumn(['kaspi_phone','kaspi_name', 'image_id']);
         });
     }
 }

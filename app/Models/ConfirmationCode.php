@@ -21,7 +21,7 @@ class ConfirmationCode extends Model
 
     public static function get($email, $code): bool
     {
-        $confirmation_code = ConfirmationCode::where(['email' => $email, 'code' => $code])->first();
+        $confirmation_code = ConfirmationCode::where(['email' => $email, 'code' => $code])->orderBy('id', 'DESC')->first();
         return (bool) $confirmation_code;
     }
 

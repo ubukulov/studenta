@@ -47,4 +47,25 @@ class NotificationController extends BaseApiController
                 ->get();
         return response()->json($notifications);
     }
+
+    public function getNotificationCount($type): int
+    {
+        return Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => $type])->count();
+    }
+
+    public function updateNotification(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'notification_id' => 'required',
+            ]);
+
+            $notification = Notification::findOrFail($request->input('notification_id'));
+            $notification->status = 'read';
+            $notification->save();
+            return response()->json('Уведомление прочитано успешно', 200, [], JSON_UNESCAPED_UNICODE);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
+        }
+    }
 }
