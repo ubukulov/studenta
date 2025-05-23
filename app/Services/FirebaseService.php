@@ -29,7 +29,7 @@ class FirebaseService
                     'title' => $title,
                     'body' => $body,
                 ],
-                'data' => $data,
+                'data' => ['text' => "Ждите подтверждение от модератора"],
             ],
         ];
 
