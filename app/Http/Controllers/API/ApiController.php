@@ -78,13 +78,12 @@ class ApiController extends Controller
 
             $input = $request->all();
             $input['code'] = rand(1000,9999);
-            //$input['code'] = "0000";
 
-            $confirmation_code = ConfirmationCode::create($input);
+            $confirmation = ConfirmationCode::create($input);
 
             $data = [
-                'name' => "Kairat",
-                'code' => $confirmation_code->code,
+                'name' => $confirmation->name ?? "Посетитель",
+                'code' => $confirmation->code,
                 'email' => $input['email'],
             ];
 
