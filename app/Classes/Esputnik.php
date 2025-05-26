@@ -14,7 +14,7 @@ class Esputnik
         $json_value = new stdClass();
         $first_name = $data['name'];
 
-        $confirmation_code = $data['confirmation_code'];
+        $confirmation_code = $data['code'];
         $json_value->recipients = [
             [
                 'email' => $data['email'],
