@@ -85,6 +85,7 @@ class ApiController extends Controller
             $data = [
                 'name' => "Kairat",
                 'code' => $confirmation_code->code,
+                'email' => $input['email'],
             ];
 
             Esputnik::sendEmail(4054454, $data);
