@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Auth;
 use Validator;
+use Esputnik;
 
 class ApiController extends Controller
 {
@@ -76,17 +77,17 @@ class ApiController extends Controller
             }
 
             $input = $request->all();
-            //$input['code'] = rand(1000,9999);
-            $input['code'] = "0000";
+            $input['code'] = rand(1000,9999);
+            //$input['code'] = "0000";
 
             $confirmation_code = ConfirmationCode::create($input);
 
             $data = [
-                'title' => 'Подтвердите регистрацию',
                 'code' => $confirmation_code->code,
             ];
 
-//            Mail::to($confirmation_code->email)->send(new ConfirmationEmail($data));
+            Esputnik::sendEmail(4054454, $data);
+
             DB::commit();
 
             return response()->json('Код подтверждение регистрации отправлено на вашу почту', 200,[],JSON_UNESCAPED_UNICODE);
