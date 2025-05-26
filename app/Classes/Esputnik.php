@@ -11,13 +11,14 @@ class Esputnik
     {
         $url = env('ES_URL') . $message_id . '/smartsend';
 
-        $json_value = new \stdClass();
-        $json_value->recipients = [
-            [
-                'email' => $data['email'],
-                'jsonParam' => [
-                    'CODE' => $data['code'],
-                    'FIRSTNAME' => $data['name'],
+        $json_value = [
+            'recipients' => [
+                [
+                    'email' => $data['email'],
+                    'params' => [
+                        'FIRSTNAME' => $data['name'],
+                        'CODE' => $data['code'],
+                    ],
                 ],
             ],
         ];
@@ -25,19 +26,22 @@ class Esputnik
         $this->sendRequestES($url, $json_value);
     }
 
-    public function sendRequestES($url, $json_values)
+    public function sendRequestES($url, $data): bool
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json_values));
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch,CURLOPT_USERPWD, env('ES_USERNAME') . ':' . env('ES_PASSWORD'));
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt ($ch, CURLOPT_SSLVERSION, 6);
-        $output = curl_exec($ch);
-        //echo($output);
-        curl_close($ch);
+        $client = new \GuzzleHttp\Client();
+
+        $response = $client->post($url, [
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode(env('ES_USERNAME') . ':' . env('ES_PASSWORD')),
+                'Content-Type' => 'application/json',
+            ],
+            'body' => json_encode($data, JSON_UNESCAPED_UNICODE),
+        ]);
+
+        if($response->getStatusCode() == 200){
+            return true;
+        }
+
+        return false;
     }
 }
