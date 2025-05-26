@@ -18,7 +18,7 @@ class Esputnik
         $json_value->recipients = [
             [
                 'email' => $data['email'],
-                'jsonParam' => "{'code': \"$confirmation_code\", 'firstname': $first_name}"
+                'jsonParam' => "{'CODE': \"$confirmation_code\", 'FIRSTNAME': $first_name}"
             ]
         ];
 
