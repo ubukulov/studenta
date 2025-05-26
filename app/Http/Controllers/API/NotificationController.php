@@ -61,8 +61,10 @@ class NotificationController extends BaseApiController
             ]);
 
             $notification = Notification::findOrFail($request->input('notification_id'));
-            $notification->status = 'read';
-            $notification->save();
+
+            Notification::where(['user_id' => $this->user->id, 'type' => $notification->type, 'status' => 'new'])
+                    ->update(['status' => 'read']);
+
             return response()->json('Уведомление прочитано успешно', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
