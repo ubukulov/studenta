@@ -83,6 +83,7 @@ class ApiController extends Controller
             $confirmation_code = ConfirmationCode::create($input);
 
             $data = [
+                'name' => "Kairat",
                 'code' => $confirmation_code->code,
             ];
 
