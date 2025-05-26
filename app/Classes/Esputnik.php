@@ -11,15 +11,15 @@ class Esputnik
     {
         $url = env('ES_URL') . $message_id . '/smartsend';
 
-        $json_value = new stdClass();
-        $first_name = $data['name'];
-
-        $confirmation_code = $data['code'];
+        $json_value = new \stdClass();
         $json_value->recipients = [
             [
                 'email' => $data['email'],
-                'jsonParam' => "{'CODE': \"$confirmation_code\", 'FIRSTNAME': $first_name}"
-            ]
+                'jsonParam' => [
+                    'CODE' => $data['code'],
+                    'FIRSTNAME' => $data['name'],
+                ],
+            ],
         ];
 
         $this->sendRequestES($url, $json_value);
