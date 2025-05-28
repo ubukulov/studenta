@@ -3,15 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Mail\ConfirmationEmail;
-use App\Mail\ResetPasswordEmail;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\ConfirmationCode;
 use App\Models\Event;
 use App\Models\Group;
-use App\Models\GroupParticipant;
-use App\Models\ImageUpload;
 use App\Models\Interest;
 use App\Models\Organization;
 use App\Models\Promotion;
@@ -19,12 +15,11 @@ use App\Models\Speciality;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Auth;
 use Validator;
 use Esputnik;
+use Illuminate\Support\Str;
 
 class ApiController extends Controller
 {
@@ -163,19 +158,19 @@ class ApiController extends Controller
                 return response()->json('Пользователь с таким email не найдено', 404, [], JSON_UNESCAPED_UNICODE);
             }
 
-            //$new_password = rand(0000,99999999);
-            $user->password = bcrypt('0000');
+            $new_password = Str::random(8);
+            $user->password = bcrypt($new_password);
             $user->save();
 
-            /*$data = [
-                'title' => 'Вы сбросили пароль',
-                'password' => $new_password
-            ];*/
+            $data = [
+                'name' => $user->name ?? "Посетитель",
+                'code' => $new_password,
+                'email' => $user->email,
+            ];
 
-            //Mail::to($email)->send(new ResetPasswordEmail($data));
+            Esputnik::sendEmail(4059313, $data);
 
-            //return response()->json('Новый пароль успешно отправлено на почту', 200, [], JSON_UNESCAPED_UNICODE);
-            return response()->json('Новый пароль успешно сброшен', 200, [], JSON_UNESCAPED_UNICODE);
+            return response()->json('Новый пароль успешно отправлено на почту', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500, [], JSON_UNESCAPED_UNICODE);
         }
