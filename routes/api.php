@@ -76,7 +76,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::post('profile/store', [UserController::class, 'storeProfile']);
         Route::delete('profile/delete', [UserController::class, 'deleteProfile']);
         Route::post('change-password', [UserController::class, 'changePassword']);
-        Route::post('delete/avatar', [UserController::class, 'deleteAvatar']);
+        Route::delete('delete/avatar', [UserController::class, 'deleteAvatar']);
 
         # Загрузка файлов
         Route::post('image/upload', [UserController::class, 'uploadImage']);

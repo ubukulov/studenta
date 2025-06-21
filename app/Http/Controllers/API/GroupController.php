@@ -49,8 +49,11 @@ class GroupController extends BaseApiController
     {
         $group = Group::with('user', 'categories', 'image', 'events')
             ->findOrFail($id);
+        $user_profile = $this->user->profile;
+        $image = ImageUpload::findOrFail($user_profile->avatar);
         $group['subscribe'] = (Group::isSubscribe($this->user->id, $id)) ? true : false;
         $group['subscribes'] = $group->subscribes()->count();
+        $group['user']['avatar'] = $image->image ?? null;
         return response()->json($group);
     }
 

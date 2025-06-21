@@ -100,7 +100,7 @@ class ApiController extends Controller
             ConfirmationCode::confirm($data['email'], $data['code']);
             $confirmation_code = ConfirmationCode::where(['email' => $data['email'], 'code' => $data['code']])->first();
             $user = User::create([
-                'name' => $data['name'] ?? null, 'email' => $data['email'], 'password' => bcrypt($confirmation_code->password),
+                'name' => $confirmation_code->name ?? null, 'email' => $data['email'], 'password' => bcrypt($confirmation_code->password),
                 'device_token' => $data['device_token'] ?? null
             ]);
 
@@ -187,6 +187,7 @@ class ApiController extends Controller
     public function getEvents(): \Illuminate\Http\JsonResponse
     {
         $events = Event::with('user', 'group', 'image')
+            ->whereDate('end_date', '>=', date('Y-m-d'))
             ->get();
 
         return response()->json($events);
