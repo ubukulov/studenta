@@ -113,12 +113,21 @@ class UserController extends BaseApiController
 
     public function uploadImage(Request $request): \Illuminate\Http\JsonResponse
     {
-        try {
-            $request->validate([
-                'image' => 'required',
-            ]);
+        $image = $request->file('image');
+        if (!$image->isValid()) {
+            return response()->json([
+                'error' => 'Upload failed',
+                'code' => $image->getError(),
+                'message' => $image->getErrorMessage()
+            ], 400);
+        }
 
-            $image = $request->file('image');
+        try {
+            /*$request->validate([
+                'image' => 'required',
+            ]);*/
+
+
             $ext = $image->getClientOriginalExtension();
             $name = md5(time()) . '.' . $ext;
             $path = '/upload/images/';

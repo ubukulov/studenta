@@ -3,15 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Mail\ConfirmationEmail;
-use App\Mail\ResetPasswordEmail;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\ConfirmationCode;
 use App\Models\Event;
 use App\Models\Group;
-use App\Models\GroupParticipant;
-use App\Models\ImageUpload;
 use App\Models\Interest;
 use App\Models\Organization;
 use App\Models\Promotion;
@@ -19,11 +15,11 @@ use App\Models\Speciality;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Auth;
 use Validator;
+use Esputnik;
+use Illuminate\Support\Str;
 
 class ApiController extends Controller
 {
@@ -76,17 +72,18 @@ class ApiController extends Controller
             }
 
             $input = $request->all();
-            //$input['code'] = rand(1000,9999);
-            $input['code'] = "0000";
+            $input['code'] = rand(1000,9999);
 
-            $confirmation_code = ConfirmationCode::create($input);
+            $confirmation = ConfirmationCode::create($input);
 
             $data = [
-                'title' => 'Подтвердите регистрацию',
-                'code' => $confirmation_code->code,
+                'name' => $confirmation->name ?? "Посетитель",
+                'code' => $confirmation->code,
+                'email' => $input['email'],
             ];
 
-//            Mail::to($confirmation_code->email)->send(new ConfirmationEmail($data));
+            Esputnik::sendEmail(4054454, $data);
+
             DB::commit();
 
             return response()->json('Код подтверждение регистрации отправлено на вашу почту', 200,[],JSON_UNESCAPED_UNICODE);
@@ -103,7 +100,7 @@ class ApiController extends Controller
             ConfirmationCode::confirm($data['email'], $data['code']);
             $confirmation_code = ConfirmationCode::where(['email' => $data['email'], 'code' => $data['code']])->first();
             $user = User::create([
-                'name' => $data['name'] ?? null, 'email' => $data['email'], 'password' => bcrypt($confirmation_code->password),
+                'name' => $confirmation_code->name ?? null, 'email' => $data['email'], 'password' => bcrypt($confirmation_code->password),
                 'device_token' => $data['device_token'] ?? null
             ]);
 
@@ -161,19 +158,19 @@ class ApiController extends Controller
                 return response()->json('Пользователь с таким email не найдено', 404, [], JSON_UNESCAPED_UNICODE);
             }
 
-            //$new_password = rand(0000,99999999);
-            $user->password = bcrypt('0000');
+            $new_password = Str::random(8);
+            $user->password = bcrypt($new_password);
             $user->save();
 
-            /*$data = [
-                'title' => 'Вы сбросили пароль',
-                'password' => $new_password
-            ];*/
+            $data = [
+                'name' => $user->name ?? "Посетитель",
+                'code' => $new_password,
+                'email' => $user->email,
+            ];
 
-            //Mail::to($email)->send(new ResetPasswordEmail($data));
+            Esputnik::sendEmail(4059313, $data);
 
-            //return response()->json('Новый пароль успешно отправлено на почту', 200, [], JSON_UNESCAPED_UNICODE);
-            return response()->json('Новый пароль успешно сброшен', 200, [], JSON_UNESCAPED_UNICODE);
+            return response()->json('Новый пароль успешно отправлено на почту', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500, [], JSON_UNESCAPED_UNICODE);
         }
@@ -190,6 +187,7 @@ class ApiController extends Controller
     public function getEvents(): \Illuminate\Http\JsonResponse
     {
         $events = Event::with('user', 'group', 'image')
+            ->whereDate('end_date', '>=', date('Y-m-d'))
             ->get();
 
         return response()->json($events);
