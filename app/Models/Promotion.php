@@ -11,7 +11,7 @@ class Promotion extends Model
 
     protected $fillable = [
         'category_id', 'organization_id', 'establishments_name', 'size', 'address', 'description', 'seats', 'location',
-        'two_gis', 'start_date', 'end_date'
+        'two_gis', 'start_date', 'end_date', 'notified'
     ];
 
     protected $dates = [

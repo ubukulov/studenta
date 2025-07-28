@@ -19,8 +19,13 @@ class CreateTableNotifications extends Migration
             $table->enum('type', [
                 'user', 'announcements', 'promotions', 'events'
             ]);
+            $table->string('title')->nullable();
             $table->string('message')->nullable();
-
+            $table->enum('status', [
+                'new', 'read'
+            ]);
+            $table->bigInteger('model_id')->nullable();
+            $table->string('image', 255)->nullable();
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')

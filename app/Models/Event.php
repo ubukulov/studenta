@@ -12,7 +12,7 @@ class Event extends Model
 
     protected $fillable = [
         'user_id', 'group_id', 'name', 'description', 'address', 'two_gis', 'start_date', 'end_date',
-        'type', 'cost', 'count_place', 'kaspi_name', 'kaspi_phone', 'image_id'
+        'type', 'cost', 'count_place', 'kaspi_name', 'kaspi_phone', 'image_id', 'notified_before_start'
     ];
 
     protected $dates = [

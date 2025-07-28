@@ -48,9 +48,35 @@ class NotificationController extends BaseApiController
         return response()->json($notifications);
     }
 
-    public function getNotificationCount($type): int
+    public function getNotificationCount()
     {
-        return Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => $type])->count();
+        $notifications = Notification::where('user_id', $this->user->id)
+            ->get();
+
+        $grouped = $notifications->groupBy('type');
+
+        $allowedTypes = ['user', 'announcements', 'promotions', 'events'];
+
+        $notificationTypes = collect($allowedTypes)->map(function ($type) use ($grouped) {
+            $group = $grouped->get($type, collect());
+            $first = $group->first();
+
+            return [
+                'type' => $type,
+                'count' => $group->count(),
+                'title' => $first?->title ?? null,
+                'message' => $first?->message ?? null,
+                'image' => $first?->image ?? null,
+                'date' => optional($first?->created_at)->toDateString(),
+            ];
+        });
+
+        return [
+            'totalCount' => $notifications->count(),
+            'notification_types' => $notificationTypes->toArray(),
+        ];
+
+        //return Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => $type])->count();
     }
 
     public function updateNotification(Request $request): \Illuminate\Http\JsonResponse

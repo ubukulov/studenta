@@ -79,22 +79,33 @@ class PromotionResource extends Resource
                     ->label('Дата окончания'),
 
                 Repeater::make('images')
-                    ->relationship('images') // должно соответствовать названию отношения в модели
+                    ->relationship('images')
                     ->schema([
                         FileUpload::make('image')
                             ->label('Изображение')
                             ->image()
-                            ->directory('promotions')
+                            ->directory('promotions/images')
                             ->visibility('public')
                             ->enableDownload()
                             ->enableOpen()
-                            ->maxSize(2048),
+                            ->maxSize(2048)
+                            ->columnSpan(1), // Левая колонка
+
+                        FileUpload::make('video')
+                            ->label('Видео')
+                            ->acceptedFileTypes(['video/mp4', 'video/avi', 'video/mov'])
+                            ->directory('promotions/videos')
+                            ->visibility('public')
+                            ->enableDownload()
+                            ->enableOpen()
+                            ->maxSize(10240)
+                            ->columnSpan(1), // Правая колонка
                     ])
-                    ->label('Изображения')
+                    ->columns(2) // Две колонки
+                    ->label('Медиа')
                     ->minItems(1)
                     ->maxItems(10)
-                    ->createItemButtonLabel('Добавить изображение')
-                    ->columns(1),
+                    ->createItemButtonLabel('Добавить медиа'),
             ]);
     }
 
@@ -135,9 +146,9 @@ class PromotionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPromotions::route('/'),
-            'create' => Pages\CreatePromotion::route('/create'),
-            'edit' => Pages\EditPromotion::route('/{record}/edit'),
+            'index' => Pages\ListNotifications::route('/'),
+            'create' => Pages\CreateNotification::route('/create'),
+            'edit' => Pages\EditNotification::route('/{record}/edit'),
         ];
     }
 }

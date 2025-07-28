@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Auth;
+use Illuminate\Support\Facades\Storage;
 use Validator;
 use Esputnik;
 use Illuminate\Support\Str;
@@ -181,6 +182,16 @@ class ApiController extends Controller
         $promotions = Promotion::orderBy('size', 'DESC')
             ->with('category', 'organization', 'images')
             ->get();
+        foreach($promotions as $promotion){
+            foreach($promotion->images as $image){
+                if(!is_null($image->image)){
+                    $image->image = Storage::disk('public')->url($image->image);
+                }
+                if(!is_null($image->video)){
+                    $image->video = Storage::disk('public')->url($image->video);
+                }
+            }
+        }
         return response()->json($promotions);
     }
 

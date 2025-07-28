@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Notification extends Model
 {
@@ -12,7 +13,7 @@ class Notification extends Model
     protected $table = 'notifications';
 
     protected $fillable = [
-        'user_id', 'type', 'message', 'status'
+        'user_id', 'type', 'title', 'message', 'status', 'model_id', 'image'
     ];
 
     protected $dates = [
@@ -22,5 +23,12 @@ class Notification extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getImageAttribute($value): ?string
+    {
+        return $value
+            ? Storage::disk('public')->url($value)
+            : null;
     }
 }

@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Models\PersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
+use App\Services\FirebaseService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +16,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton(FirebaseService::class, function ($app) {
+            return new FirebaseService();
+        });
     }
 
     /**

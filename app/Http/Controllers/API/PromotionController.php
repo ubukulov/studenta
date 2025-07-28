@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Promotion;
 use App\Models\PromotionImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PromotionController extends BaseApiController
 {
@@ -14,6 +15,16 @@ class PromotionController extends BaseApiController
         $promotions = Promotion::orderBy('size', 'DESC')
             ->with('category', 'organization', 'images')
             ->get();
+        foreach($promotions as $promotion){
+            foreach($promotion->images as $image){
+                if(!is_null($image->image)){
+                    $image->image = Storage::disk('public')->url($image->image);
+                }
+                if(!is_null($image->video)){
+                    $image->video = Storage::disk('public')->url($image->video);
+                }
+            }
+        }
         return response()->json($promotions);
     }
 
@@ -21,6 +32,14 @@ class PromotionController extends BaseApiController
     {
         $promotion = Promotion::with('category', 'organization', 'images')
             ->findOrFail($id);
+        foreach($promotion->images as $image){
+            if(!is_null($image->image)){
+                $image->image = Storage::disk('public')->url($image->image);
+            }
+            if(!is_null($image->video)){
+                $image->video = Storage::disk('public')->url($image->video);
+            }
+        }
         return response()->json($promotion);
     }
 

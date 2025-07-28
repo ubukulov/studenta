@@ -84,7 +84,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         # Notification
         Route::get('get-notification-types', [NotificationController::class, 'getNotificationTypes']);
         Route::get('notification/{type}', [NotificationController::class, 'getNotification']);
-        Route::get('notifications/{type}/count', [NotificationController::class, 'getNotificationCount']);
+        Route::get('notifications/count', [NotificationController::class, 'getNotificationCount']);
         Route::post('notification/read', [NotificationController::class, 'updateNotification']);
     });
 });
