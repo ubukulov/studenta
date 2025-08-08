@@ -59,4 +59,9 @@ class User extends Authenticatable
     {
         return $value ?? 'Без имени';
     }
+
+    public function profileWithAvatar()
+    {
+        return $this->hasOne(UserProfile::class)->with('avatarImage');
+    }
 }

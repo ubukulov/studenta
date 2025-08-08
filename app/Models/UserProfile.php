@@ -41,4 +41,9 @@ class UserProfile extends Model
         $user_profile->avatar = null;
         $user_profile->save();
     }
+
+    public function avatarImage()
+    {
+        return $this->belongsTo(ImageUpload::class, 'avatar');
+    }
 }

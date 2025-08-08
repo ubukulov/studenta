@@ -10,11 +10,21 @@ use Illuminate\Support\Facades\Storage;
 
 class PromotionController extends BaseApiController
 {
-    public function promotions(): \Illuminate\Http\JsonResponse
+    public function promotions(Request $request): \Illuminate\Http\JsonResponse
     {
-        $promotions = Promotion::orderBy('size', 'DESC')
-            ->with('category', 'organization', 'images')
-            ->get();
+        $query = Promotion::orderBy('size', 'DESC')
+            ->with('category', 'organization', 'images');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('establishments_name', 'like', "%$search%")
+                    ->orWhere('description', 'like', "%$search%");
+            });
+        }
+
+        $promotions = $query->get();
+
         foreach($promotions as $promotion){
             foreach($promotion->images as $image){
                 if(!is_null($image->image)){

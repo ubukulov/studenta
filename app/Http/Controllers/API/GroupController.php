@@ -10,17 +10,26 @@ use Illuminate\Support\Facades\DB;
 
 class GroupController extends BaseApiController
 {
-    public function groups(): \Illuminate\Http\JsonResponse
+    public function groups(Request $request): \Illuminate\Http\JsonResponse
     {
-        $groups = Group::with('user', 'image', 'events', 'categories')
+        $query = Group::with('user', 'image', 'events', 'categories')
             ->select([
                 'groups.*',
                 DB::raw('(COUNT(*)) as subscribes')
             ])
             ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
             ->groupBy('groups.id')
-            ->orderBy('subscribes', 'DESC')
-            ->get();
+            ->orderBy('subscribes', 'DESC');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                    ->orWhere('description', 'like', "%$search%");
+            });
+        }
+
+        $groups = $query->get();
 
         foreach($groups as $group) {
             if(GroupParticipant::userSubscribed($group->id, $this->user->id)) {
@@ -158,6 +167,10 @@ class GroupController extends BaseApiController
             ]);
 
             $group_id = $request->input('group_id');
+
+            $group = Group::findOrFail($group_id);
+
+            if($group->type == 'admin') response()->json('Вы не можете отписаться от этой группы', 403, [], JSON_UNESCAPED_UNICODE);
 
             if($group_participant = Group::isSubscribe($this->user->id, $group_id)) {
                 Group::unSubscribe($group_participant);

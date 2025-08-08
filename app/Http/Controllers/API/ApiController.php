@@ -105,6 +105,8 @@ class ApiController extends Controller
                 'device_token' => $data['device_token'] ?? null
             ]);
 
+            Group::subscribe($user->id, Group::whereType('admin')->first()->id); // группа Saparline
+
             $token = $user->createToken('API TOKEN')->plainTextToken;
 
             return response()->json(['token' => $token], 200, [], JSON_UNESCAPED_UNICODE);

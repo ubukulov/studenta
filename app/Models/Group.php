@@ -10,7 +10,7 @@ class Group extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'category_id', 'image_id', 'name', 'description', 'instagram', 'whatsapp', 'telegram'
+        'user_id', 'category_id', 'image_id', 'name', 'description', 'instagram', 'whatsapp', 'telegram', 'type'
     ];
 
     protected $dates = [

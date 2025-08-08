@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\GroupReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\ApiController;
@@ -55,6 +56,11 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::delete('group/{id}/delete', [GroupController::class, 'delete']);
         Route::post('group/subscribe', [GroupController::class, 'subscribe']);
         Route::post('group/unsubscribe', [GroupController::class, 'unsubscribe']);
+        # Group Reviews
+        Route::get('group/{id}/reviews', [GroupReviewController::class, 'getGroupReviews']);
+        Route::post('group/review/store', [GroupReviewController::class, 'groupReviewStore']);
+        Route::match(['put', 'patch'], 'group/review/{id}/update', [GroupReviewController::class, 'groupReviewUpdate']);
+        Route::delete('group/review/{id}/delete', [GroupReviewController::class, 'groupReviewDelete']);
 
         # Ивенты
         Route::get('events', [EventController::class, 'events']);

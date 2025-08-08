@@ -146,9 +146,9 @@ class PromotionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListNotifications::route('/'),
-            'create' => Pages\CreateNotification::route('/create'),
-            'edit' => Pages\EditNotification::route('/{record}/edit'),
+            'index' => Pages\ListPromotions::route('/'),
+            'create' => Pages\CreatePromotion::route('/create'),
+            'edit' => Pages\EditPromotion::route('/{record}/edit'),
         ];
     }
 }

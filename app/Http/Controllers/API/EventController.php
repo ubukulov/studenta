@@ -12,13 +12,23 @@ use Illuminate\Support\Facades\DB;
 
 class EventController extends BaseApiController
 {
-    public function events(): \Illuminate\Http\JsonResponse
+    public function events(Request $request): \Illuminate\Http\JsonResponse
     {
-        $events = Event::with('user', 'group', 'image')
+        $query = Event::with('user', 'group', 'image')
             ->selectRaw('events.*, event_participants.status')
             ->leftJoin('event_participants', 'events.id', '=', 'event_participants.event_id')
-            ->whereDate('events.end_date', '>=', date('Y-m-d'))
-            ->get();
+            ->whereDate('events.end_date', '>=', date('Y-m-d'));
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                    ->orWhere('description', 'like', "%$search%");
+            });
+        }
+
+        $events = $query->get();
+
         foreach($events as $event) {
             if($event->user_id == $this->user->id) continue;
             $event['participants'] = $event->getSubscribesCount();
