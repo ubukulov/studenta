@@ -27,6 +27,8 @@ class CreateTablePromotions extends Migration
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
             $table->boolean('notified')->default(0);
+            $table->decimal('latitude', 10,7)->nullable();
+            $table->decimal('longitude', 10,7)->nullable();
             $table->timestamps();
 
             $table->foreign('category_id')

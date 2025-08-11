@@ -7,6 +7,7 @@ use App\Models\Promotion;
 use App\Models\PromotionImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class PromotionController extends BaseApiController
 {
@@ -15,12 +16,33 @@ class PromotionController extends BaseApiController
         $query = Promotion::orderBy('size', 'DESC')
             ->with('category', 'organization', 'images');
 
+        // Поиск по ключевому слову
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('establishments_name', 'like', "%$search%")
                     ->orWhere('description', 'like', "%$search%");
             });
+        }
+
+        // Фильтр по координатам
+        if ($request->filled('lat') && $request->filled('lng')) {
+            $lat = $request->lat;
+            $lng = $request->lng;
+            $radius = $request->get('radius', 5000); // метров, по умолчанию 5 км
+
+            // Формула Haversine для MySQL
+            $haversine = "(6371000 * acos(cos(radians($lat))
+                    * cos(radians(latitude))
+                    * cos(radians(longitude) - radians($lng))
+                    + sin(radians($lat))
+                    * sin(radians(latitude))))";
+
+            // Добавляем вычисляемое поле distance и фильтруем
+            $query->select('*')
+                ->selectRaw("$haversine AS distance")
+                ->having('distance', '<=', $radius)
+                ->orderBy('distance');
         }
 
         $promotions = $query->get();
