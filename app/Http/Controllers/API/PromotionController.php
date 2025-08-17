@@ -29,7 +29,7 @@ class PromotionController extends BaseApiController
         if ($request->filled('lat') && $request->filled('lng')) {
             $lat = $request->lat;
             $lng = $request->lng;
-            $radius = $request->get('radius', 5000); // метров, по умолчанию 5 км
+            $radius = $request->get('radius', 15000); // метров, по умолчанию 5 км
 
             // Формула Haversine для MySQL
             $haversine = "(6371000 * acos(cos(radians($lat))
