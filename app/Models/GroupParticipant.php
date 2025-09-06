@@ -29,9 +29,15 @@ class GroupParticipant extends Model
         return $this->belongsTo(User::class);
     }
 
-    public static function userSubscribed($group_id, $user_id)
+    public static function userSubscribed($group_id, $user_id): bool
     {
+        $group = Group::find($group_id);
         $record = GroupParticipant::where(['group_id' => $group_id, 'user_id' => $user_id])->first();
-        return ($record) ? true : false;
+        if($group->type == 'admin' && !$record) {
+            Group::subscribe($user_id, $group_id);
+            return true;
+        }
+
+        return (bool) $record;
     }
 }

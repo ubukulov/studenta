@@ -11,7 +11,7 @@ class GroupReviewController extends BaseApiController
     public function getGroupReviews($groupId): \Illuminate\Http\JsonResponse
     {
         $groupReviews = GroupReview::where([
-            'group_id' => $groupId, 'user_id' => $this->user->id
+            'group_id' => $groupId, //'user_id' => $this->user->id
         ])
             ->with('user.profileWithAvatar.avatarImage', 'group')
             ->orderBy('created_at', 'desc')

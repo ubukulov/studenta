@@ -37,18 +37,22 @@ class GroupController extends BaseApiController
             } else {
                 $group['subscribe'] = false;
             }
-            $user = $group->user;
-            $user_profile = $user->profile;
-            if($user_profile) {
-                $university = $user_profile->university;
-                if($university) $group['user']['university'] = $university->name ?? null;
-                $image_upload = ImageUpload::find($user_profile->avatar);
-                if($image_upload) $group['user']['avatar'] = env('APP_URL') . $image_upload->image ?? null;
-            } else {
-                $group['user']['university'] = null;
-                $group['user']['avatar'] = null;
+            if($group->type !== 'admin') {
+                $user = $group->user;
+                $user_profile = $user->profile;
+                $image = ImageUpload::find($user_profile->avatar);
+                $user->avatar = $image->image ?? null;
+                $group->setRelation('user', $user);
+                if($user_profile) {
+                    $university = $user_profile->university;
+                    $group['user']['university'] = $university->name ?? null;
+                } else {
+                    $group['user']['university'] = null;
+                }
+
+                unset($group['user']['profile']);
             }
-            unset($group['user']['profile']);
+
         }
 
         return response()->json($groups);
@@ -59,10 +63,11 @@ class GroupController extends BaseApiController
         $group = Group::with('user', 'categories', 'image', 'events')
             ->findOrFail($id);
         $user_profile = $this->user->profile;
-        $image = ImageUpload::findOrFail($user_profile->avatar);
+        $image = ImageUpload::find($user_profile->avatar);
         $group['subscribe'] = (Group::isSubscribe($this->user->id, $id)) ? true : false;
         $group['subscribes'] = $group->subscribes()->count();
-        $group['user']['avatar'] = $image->image ?? null;
+        $this->user->avatar = $image->image ?? null;
+        $group->setRelation('user', $this->user);
         return response()->json($group);
     }
 

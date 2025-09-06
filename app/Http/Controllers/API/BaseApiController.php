@@ -19,7 +19,9 @@ class BaseApiController extends Controller
             $this->user = auth('sanctum')->user();
 
             if(!$this->user){
-                abort(401);
+                return response()->json([
+                    'message' => 'Unauthenticated.'
+                ], 401);
             }
 
             return $next($request);

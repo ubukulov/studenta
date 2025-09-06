@@ -19,8 +19,31 @@ class PromotionController extends BaseApiController
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('establishments_name', 'like', "%$search%")
-                    ->orWhere('description', 'like', "%$search%");
+                    ->orWhere('description', 'like', "%$search%")
+                    ->orWhereHas('organization', function ($q) use ($search) {
+                        $q->where('name', 'like', "%$search%");
+                    });
             });
+        }
+
+        // Фильтр по координатам
+        if ($request->filled('lat') && $request->filled('lng')) {
+            $lat = $request->lat;
+            $lng = $request->lng;
+            $radius = $request->get('radius', 15000); // метров, по умолчанию 5 км
+
+            // Формула Haversine для MySQL
+            $haversine = "(6371000 * acos(cos(radians($lat))
+                    * cos(radians(latitude))
+                    * cos(radians(longitude) - radians($lng))
+                    + sin(radians($lat))
+                    * sin(radians(latitude))))";
+
+            // Добавляем вычисляемое поле distance и фильтруем
+            $query->select('*')
+                ->selectRaw("$haversine AS distance")
+                ->having('distance', '<=', $radius)
+                ->orderBy('distance');
         }
 
         $promotions = $query->get();
