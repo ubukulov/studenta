@@ -46,6 +46,33 @@ class PromotionController extends BaseApiController
                 ->orderBy('distance');
         }
 
+        // --- Новый блок фильтров ---
+        if ($request->filled('filter')) {
+            $filter = $request->filter;
+
+            switch ($filter) {
+                case 'popular':
+                    $query->orderBy('size', 'DESC');
+                    break;
+
+                case 'recommended':
+                    $query->where('is_recommended', 'yes')
+                        ->orderBy('created_at', 'DESC');
+                    break;
+
+                case 'distance':
+                    if ($request->filled('lat') && $request->filled('lng')) {
+                        $query->orderBy('distance', 'ASC');
+                    }
+                    break;
+
+                case 'ratings':
+                    // если есть поле rating
+                    //$query->orderBy('rating', 'DESC');
+                    break;
+            }
+        }
+
         $promotions = $query->get();
 
         foreach($promotions as $promotion){
@@ -80,5 +107,25 @@ class PromotionController extends BaseApiController
     {
         $promotion_images = PromotionImage::where(['promotion_id' => $id])->get();
         return response()->json($promotion_images);
+    }
+
+    public function getPromotionFilters()
+    {
+        $filters = [
+            [
+                'id' => 1, 'type' => 'popular', 'name' => 'Популярные', 'icon' => env('APP_URL') . '/files/popular-icon.svg'
+            ],
+            [
+                'id' => 2, 'type' => 'recommended', 'name' => 'Рекомендовано', 'icon' => env('APP_URL') . '/files/recommend-icon.svg'
+            ],
+            [
+                'id' => 3, 'type' => 'distance', 'name' => 'Расстояние', 'icon' => env('APP_URL') . '/files/distance-icon.svg'
+            ],
+            [
+                'id' => 4, 'type' => 'ratings', 'name' => 'Оценки', 'icon' => env('APP_URL') . '/files/ratings-icon.svg'
+            ],
+        ];
+
+        return response()->json($filters);
     }
 }

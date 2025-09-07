@@ -47,6 +47,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::get('promotions', [PromotionController::class, 'promotions']);
         Route::get('promotion/{id}', [PromotionController::class, 'getPromotionById']);
         Route::get('promotion/{id}/images', [PromotionController::class, 'getPromotionImagesById']);
+        Route::get('promotions/filters', [PromotionController::class, 'getPromotionFilters']);
 
         # Группы
         Route::get('groups', [GroupController::class, 'groups']);

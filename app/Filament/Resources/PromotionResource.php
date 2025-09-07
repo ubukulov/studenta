@@ -78,6 +78,15 @@ class PromotionResource extends Resource
                     ->required()
                     ->label('Дата окончания'),
 
+                Select::make('is_recommended')
+                    ->label('Рекомендовано')
+                    ->options([
+                        'no' => 'Нет',
+                        'yes' => 'Да',
+                    ])
+                    ->default('no')
+                    ->required(),
+
                 Repeater::make('images')
                     ->relationship('images')
                     ->schema([
