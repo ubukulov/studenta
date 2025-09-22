@@ -75,7 +75,7 @@ class PromotionController extends BaseApiController
 
         $promotions = $query->get();
 
-        foreach($promotions as $promotion){
+        foreach($promotions as $promotion) {
             foreach($promotion->images as $image){
                 if(!is_null($image->image)){
                     $image->image = Storage::disk('public')->url($image->image);
@@ -113,16 +113,13 @@ class PromotionController extends BaseApiController
     {
         $filters = [
             [
-                'id' => 1, 'type' => 'popular', 'name' => 'Популярные', 'icon' => env('APP_URL') . '/files/popular-icon.svg'
+                'id' => 1, 'type' => 'popular', 'name' => 'По Акции', 'icon' => env('APP_URL') . '/files/popular-icon.svg'
             ],
             [
                 'id' => 2, 'type' => 'recommended', 'name' => 'Рекомендовано', 'icon' => env('APP_URL') . '/files/recommend-icon.svg'
             ],
             [
                 'id' => 3, 'type' => 'distance', 'name' => 'Расстояние', 'icon' => env('APP_URL') . '/files/distance-icon.svg'
-            ],
-            [
-                'id' => 4, 'type' => 'ratings', 'name' => 'Оценки', 'icon' => env('APP_URL') . '/files/ratings-icon.svg'
             ],
         ];
 

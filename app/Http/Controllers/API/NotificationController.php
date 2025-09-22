@@ -57,7 +57,7 @@ class NotificationController extends BaseApiController
 
         $allowedTypes = ['user', 'announcements', 'promotions', 'events'];
 
-        $notificationTypes = collect($allowedTypes)->map(function ($type) use ($grouped) {
+        /*$notificationTypes = collect($allowedTypes)->map(function ($type) use ($grouped) {
             $group = $grouped->get($type, collect());
             $first = $group->first();
 
@@ -74,7 +74,44 @@ class NotificationController extends BaseApiController
         return [
             'totalCount' => $notifications->count(),
             'notification_types' => $notificationTypes->toArray(),
+        ];*/
+
+        $data = [
+            'totalCount' => Notification::where(['user_id' => $this->user->id, 'status' => 'new'])->count()
         ];
+
+        $data['notification_types'] = [
+            [
+                "type" => 'user',
+                'count' => Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => 'user'])->count(),
+                'title' => 'Пользователь',
+                'message' => null,
+                'image' => env('APP_URL') . "/files/user.png",
+            ],
+            [
+                "type" => 'announcements',
+                'count' => Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => 'announcements'])->count(),
+                'title' => 'Объявления',
+                'message' => null,
+                'image' => env('APP_URL') . "/files/announcements.png",
+            ],
+            [
+                "type" => 'promotions',
+                'count' => Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => 'promotions'])->count(),
+                'title' => 'Акции',
+                'message' => null,
+                'image' => env('APP_URL') . "/files/promotions.png",
+            ],
+            [
+                "type" => 'events',
+                'count' => Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => 'events'])->count(),
+                'title' => 'Ивенты',
+                'message' => null,
+                'image' => env('APP_URL') . "/files/events.png",
+            ],
+        ];
+
+        return $data;
 
         //return Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => $type])->count();
     }
