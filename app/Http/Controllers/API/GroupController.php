@@ -7,6 +7,7 @@ use App\Models\GroupParticipant;
 use App\Models\ImageUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class GroupController extends BaseApiController
 {
@@ -62,12 +63,15 @@ class GroupController extends BaseApiController
     {
         $group = Group::with('user', 'categories', 'image', 'events')
             ->findOrFail($id);
-        $user_profile = $this->user->profile;
+        $groupOwner = User::findOrFail($group->user_id);
+        $user_profile = $groupOwner->profile;
+        $university = $user_profile->university;
+        $user_profile['university_name'] = $university->name;
         $image = ImageUpload::find($user_profile->avatar);
         $group['subscribe'] = (Group::isSubscribe($this->user->id, $id)) ? true : false;
         $group['subscribes'] = $group->subscribes()->count();
-        $this->user->avatar = $image->image ?? null;
-        $group->setRelation('user', $this->user);
+        $user_profile->avatar = $image->image ?? null;
+        $group->setRelation('user', $groupOwner);
         return response()->json($group);
     }
 
