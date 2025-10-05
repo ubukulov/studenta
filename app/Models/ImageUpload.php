@@ -26,7 +26,7 @@ class ImageUpload extends Model
 
     public static function get($user_id, $image_id): bool
     {
-        return (bool) ImageUpload::where(['user_id' => $user_id, 'id' => $image_id])->first();
+        return (bool) ImageUpload::where(['user_id' => $user_id, 'id' => $image_id])->exists();
     }
 
     public function getFilenameAttribute(): string

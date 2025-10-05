@@ -14,6 +14,7 @@ use App\Models\Promotion;
 use App\Models\Speciality;
 use App\Models\University;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Auth;
@@ -238,9 +239,12 @@ class ApiController extends Controller
 
     public function promotions(): \Illuminate\Http\JsonResponse
     {
-        $promotions = Promotion::orderBy('size', 'DESC')
+        $promotions = Promotion::whereDate('start_date', '<=', Carbon::today())
+            ->whereDate('end_date', '>=', Carbon::today())
             ->with('category', 'organization', 'images')
+            ->orderBy('size', 'DESC')
             ->get();
+
         foreach($promotions as $promotion){
             foreach($promotion->images as $image){
                 if(!is_null($image->image)){

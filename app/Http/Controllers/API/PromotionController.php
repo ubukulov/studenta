@@ -7,12 +7,14 @@ use App\Models\Promotion;
 use App\Models\PromotionImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class PromotionController extends BaseApiController
 {
     public function promotions(Request $request): \Illuminate\Http\JsonResponse
     {
-        $query = Promotion::orderBy('size', 'DESC')
+        $query = Promotion::whereDate('start_date', '<=', Carbon::today())
+            ->whereDate('end_date', '>=', Carbon::today())
             ->with('category', 'organization', 'images');
 
         if ($request->has('search') && !empty($request->search)) {
@@ -30,7 +32,7 @@ class PromotionController extends BaseApiController
         if ($request->filled('lat') && $request->filled('lng')) {
             $lat = $request->lat;
             $lng = $request->lng;
-            $radius = $request->get('radius', 15000); // метров, по умолчанию 5 км
+            $radius = $request->get('radius');
 
             // Формула Haversine для MySQL
             $haversine = "(6371000 * acos(cos(radians($lat))
@@ -42,7 +44,7 @@ class PromotionController extends BaseApiController
             // Добавляем вычисляемое поле distance и фильтруем
             $query->select('*')
                 ->selectRaw("$haversine AS distance")
-                ->having('distance', '<=', $radius)
+                //->having('distance', '<=', $radius)
                 ->orderBy('distance');
         }
 
@@ -62,6 +64,7 @@ class PromotionController extends BaseApiController
 
                 case 'distance':
                     if ($request->filled('lat') && $request->filled('lng')) {
+                        $query->having('distance', '<=', 15000);
                         $query->orderBy('distance', 'ASC');
                     }
                     break;

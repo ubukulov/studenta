@@ -80,33 +80,38 @@ class NotificationController extends BaseApiController
             'totalCount' => Notification::where(['user_id' => $this->user->id, 'status' => 'new'])->count()
         ];
 
+        $notificationUser = Notification::where(['user_id' => $this->user->id, 'type' => 'user'])->orderBy('id', 'desc')->first();
+        $notificationAnnouncement = Notification::where(['user_id' => $this->user->id, 'type' => 'announcements'])->orderBy('id', 'desc')->first();
+        $notificationPromotion = Notification::where(['user_id' => $this->user->id, 'type' => 'promotions'])->orderBy('id', 'desc')->first();
+        $notificationEvent = Notification::where(['user_id' => $this->user->id, 'type' => 'events'])->orderBy('id', 'desc')->first();
+
         $data['notification_types'] = [
             [
                 "type" => 'user',
                 'count' => Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => 'user'])->count(),
                 'title' => 'Пользователь',
-                'message' => null,
+                'message' => ($notificationUser) ? $notificationUser->message : null,
                 'image' => env('APP_URL') . "/files/user.png",
             ],
             [
                 "type" => 'announcements',
                 'count' => Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => 'announcements'])->count(),
                 'title' => 'Объявления',
-                'message' => null,
+                'message' => ($notificationAnnouncement) ? $notificationAnnouncement->message : null,
                 'image' => env('APP_URL') . "/files/announcements.png",
             ],
             [
                 "type" => 'promotions',
                 'count' => Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => 'promotions'])->count(),
                 'title' => 'Акции',
-                'message' => null,
+                'message' => ($notificationPromotion) ? $notificationPromotion->message : null,
                 'image' => env('APP_URL') . "/files/promotions.png",
             ],
             [
                 "type" => 'events',
                 'count' => Notification::where(['user_id' => $this->user->id, 'status' => 'new', 'type' => 'events'])->count(),
                 'title' => 'Ивенты',
-                'message' => null,
+                'message' => ($notificationEvent) ? $notificationEvent->message : null,
                 'image' => env('APP_URL') . "/files/events.png",
             ],
         ];

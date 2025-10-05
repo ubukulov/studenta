@@ -27,18 +27,31 @@ class UserController extends BaseApiController
     public function storeProfile(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = $this->user;
+        $data = $request->all();
 
         if($request->has('city_id')) $data['city_id'] = $request->get('city_id');
         if($request->has('university_id')) $data['university_id'] = $request->get('university_id');
         if($request->has('speciality_id')) $data['speciality_id'] = $request->get('speciality_id');
         if($request->has('start_year')) $data['start_year'] = $request->get('start_year');
         if($request->has('end_year')) $data['end_year'] = $request->get('end_year');
-        if($request->has('identity_card')) $data['identity_card'] = $request->get('identity_card');
-        if($request->has('student_card')) $data['student_card'] = $request->get('student_card');
-        if($request->has('avatar')) $data['avatar'] = $request->get('avatar');
 
+        if($request->has('identity_card') && ImageUpload::get($user->id, $request->get('identity_card'))) {
+            $data['identity_card'] = $request->get('identity_card');
+        } else {
+            $data['identity_card'] = null;
+        }
 
-        $data = $request->all();
+        if($request->has('student_card') && ImageUpload::get($user->id, $request->get('student_card'))) {
+            $data['student_card'] = $request->get('student_card');
+        } else {
+            $data['student_card'] = null;
+        }
+
+        if($request->has('avatar') && ImageUpload::get($user->id, $request->get('avatar'))) {
+            $data['avatar'] = $request->get('avatar');
+        } else {
+            $data['avatar'] = null;
+        }
 
         $data['user_id'] = $user->id;
 
@@ -63,7 +76,7 @@ class UserController extends BaseApiController
         }
 
         if(User::hasProfile($user)) {
-            $user_profile = UserProfile::where('user_id', $this->user->id)->first();
+            $user_profile = UserProfile::where('user_id', $user->id)->first();
             $user_profile->update($data);
             return response()->json("Профиль успешно обновлено", 200, [], JSON_UNESCAPED_UNICODE);
         } else {
@@ -151,10 +164,27 @@ class UserController extends BaseApiController
                 'image_id' => 'required'
             ]);
 
-            if(ImageUpload::get($this->user->id, $request->get('image_id'))) {
-                ImageUpload::destroy($request->get('image_id'));
+            $imageId = $request->get('image_id');
 
-                UserProfile::resetAvatar($this->user);
+            if(ImageUpload::get($this->user->id, $imageId)) {
+
+                $userProfile = $this->user->profile;
+
+                if($userProfile->avatar == $imageId) {
+                    $userProfile->avatar = null;
+                }
+
+                if($userProfile->identity_card == $imageId) {
+                    $userProfile->identity_card = null;
+                }
+
+                if($userProfile->student_card == $imageId) {
+                    $userProfile->student_card = null;
+                }
+
+                $userProfile->save();
+
+                ImageUpload::destroy($imageId);
 
                 return response()->json('Фото успешно удалено', 200, [], JSON_UNESCAPED_UNICODE);
             }

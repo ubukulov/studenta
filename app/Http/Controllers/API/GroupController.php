@@ -14,13 +14,13 @@ class GroupController extends BaseApiController
     public function groups(Request $request): \Illuminate\Http\JsonResponse
     {
         $query = Group::with('user', 'image', 'events', 'categories')
+            ->withCount('subscribes')
             ->select([
-                'groups.*',
-                DB::raw('(COUNT(*)) as subscribes')
+                'groups.*'
             ])
-            ->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
-            ->groupBy('groups.id')
-            ->orderBy('subscribes', 'DESC');
+            //->leftJoin('group_participants', 'group_participants.group_id', '=', 'groups.id')
+            ->groupBy('groups.id');
+            //->orderBy('subscribes', 'DESC');
 
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
@@ -53,25 +53,32 @@ class GroupController extends BaseApiController
 
                 unset($group['user']['profile']);
             }
-
+            $group['subscribes'] = $group->subscribes()->count();
         }
+
+        $groups = $groups->sortByDesc('subscribes')->values();
 
         return response()->json($groups);
     }
 
-    public function getGroupById($id)
+    public function getGroupById($id): \Illuminate\Http\JsonResponse
     {
         $group = Group::with('user', 'categories', 'image', 'events')
             ->findOrFail($id);
-        $groupOwner = User::findOrFail($group->user_id);
-        $user_profile = $groupOwner->profile;
-        $university = $user_profile->university;
-        $user_profile['university_name'] = $university->name;
-        $image = ImageUpload::find($user_profile->avatar);
+        if(!is_null($group->user_id)) {
+            $groupOwner = User::find($group->user_id);
+            $user_profile = $groupOwner->profile;
+            $university = $user_profile->university;
+            $user_profile['university_name'] = $university->name;
+            $image = ImageUpload::find($user_profile->avatar);
+            $user_profile->avatar_image = $image->image ?? null;
+            $groupOwner['avatar'] = $image->image ?? null;
+            $group->setRelation('user', $groupOwner);
+        }
+
         $group['subscribe'] = (Group::isSubscribe($this->user->id, $id)) ? true : false;
         $group['subscribes'] = $group->subscribes()->count();
-        $user_profile->avatar = $image->image ?? null;
-        $group->setRelation('user', $groupOwner);
+
         return response()->json($group);
     }
 
