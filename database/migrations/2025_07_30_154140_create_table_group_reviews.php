@@ -19,6 +19,7 @@ class CreateTableGroupReviews extends Migration
             $table->unsignedBigInteger('group_id');
             $table->string('comment', 500)->nullable();
             $table->float('rating')->nullable();
+            $table->enum('status', ['active', 'inactive', 'spam', 'abuse', 'not_review'])->default('active');
             $table->timestamps();
 
             $table->foreign('user_id')

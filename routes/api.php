@@ -62,6 +62,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::post('group/review/store', [GroupReviewController::class, 'groupReviewStore']);
         Route::match(['put', 'patch'], 'group/review/{id}/update', [GroupReviewController::class, 'groupReviewUpdate']);
         Route::delete('group/review/{id}/delete', [GroupReviewController::class, 'groupReviewDelete']);
+        Route::post('group/review/report', [GroupReviewController::class, 'groupReviewReport']);
 
         # Ивенты
         Route::get('events', [EventController::class, 'events']);

@@ -12,7 +12,7 @@ class GroupReview extends Model
     protected $table = 'group_reviews';
 
     protected $fillable = [
-        'user_id', 'group_id', 'comment', 'rating', 'created_at', 'updated_at'
+        'user_id', 'group_id', 'comment', 'rating', 'status', 'created_at', 'updated_at'
     ];
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo

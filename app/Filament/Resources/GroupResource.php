@@ -40,15 +40,15 @@ class GroupResource extends Resource
                     ->required(),
 
                 Forms\Components\TextInput::make('instagram')
-                    ->label('Описание')
+                    ->label('Instagram')
                     ->required(),
 
                 Forms\Components\TextInput::make('whatsapp')
-                    ->label('Описание')
+                    ->label('WhatsApp')
                     ->required(),
 
                 Forms\Components\TextInput::make('telegram')
-                    ->label('Описание')
+                    ->label('Telegram')
                     ->required(),
 
             ]);

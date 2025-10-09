@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\GroupReview;
+use App\Models\GroupReviewReport;
 use Illuminate\Http\Request;
 
 class GroupReviewController extends BaseApiController
@@ -12,6 +13,7 @@ class GroupReviewController extends BaseApiController
     {
         $groupReviews = GroupReview::where([
             'group_id' => $groupId, //'user_id' => $this->user->id
+            'status' => 'active'
         ])
             ->with('user.profileWithAvatar.avatarImage', 'group')
             ->orderBy('created_at', 'desc')
@@ -89,5 +91,38 @@ class GroupReviewController extends BaseApiController
         $groupReview->delete();
 
         return response()->json('Отзыв успешно удален', 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function groupReviewReport(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'group_review_id' => 'required|exists:group_reviews,id',
+                'type' => 'required|in:spam,abuse,not_review',
+                'comment' => 'nullable|string|max:500',
+            ]);
+
+            $groupReview = GroupReview::findOrFail($request->group_review_id);
+
+            // Проверим, что юзер не жалуется дважды на один отзыв
+            $exists = GroupReviewReport::where('user_id', $this->user->id)
+                ->where('group_review_id', $groupReview->id)
+                ->exists();
+
+            if ($exists) {
+                return response()->json(['message' => 'Вы уже пожаловались на этот отзыв'], 400, [], JSON_UNESCAPED_UNICODE);
+            }
+
+            GroupReviewReport::create([
+                'user_id' => $this->user->id,
+                'group_review_id' => $groupReview->id,
+                'type' => $request->type,
+                'comment' => $request->comment,
+            ]);
+
+            return response()->json(['message' => 'Жалоба отправлена успешно'], 200, [], JSON_UNESCAPED_UNICODE);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json($e->validator->errors(), 422);
+        }
     }
 }
