@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Services\FirebaseService;
+use App\Models\User;
 
 class PushNotificationJob implements ShouldQueue
 {
@@ -55,7 +56,7 @@ class PushNotificationJob implements ShouldQueue
         ]);
         foreach ($this->tokens as $token) {
             try {
-                $firebase->sendNotification(
+                $response = $firebase->sendNotification(
                     $token,
                     $this->title,
                     $this->body,
@@ -63,10 +64,27 @@ class PushNotificationJob implements ShouldQueue
                     $this->imageUrl,
                     $this->clickAction
                 );
+
+                if (isset($response['failure']) && $response['failure'] > 0) {
+                    $error = $response['results'][0]['error'] ?? 'unknown';
+                    if (in_array($error, ['InvalidRegistration', 'NotRegistered'])) {
+                        $this->invalidateDeviceToken($token);
+                        \Log::warning("💀 Удалён невалидный токен: {$token}");
+                    }
+                }
             } catch (\Exception $e) {
                 \Log::warning("Ошибка при отправке push-токену {$token}: " . $e->getMessage());
             }
         }
         \Log::info('✅ PushNotificationJob завершён');
     }
+
+    /**
+     * Удаляет невалидный токен у пользователя
+     */
+    protected function invalidateDeviceToken(string $token): void
+    {
+        User::where('device_token', $token)->update(['device_token' => null]);
+    }
+
 }

@@ -85,6 +85,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::delete('profile/delete', [UserController::class, 'deleteProfile']);
         Route::post('change-password', [UserController::class, 'changePassword']);
         Route::delete('delete/avatar', [UserController::class, 'deleteAvatar']);
+        Route::post('update-device-token', [UserController::class, 'updateDeviceToken']);
 
         # Загрузка файлов
         Route::post('image/upload', [UserController::class, 'uploadImage']);
@@ -94,6 +95,9 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::get('notification/{type}', [NotificationController::class, 'getNotification']);
         Route::get('notifications/count', [NotificationController::class, 'getNotificationCount']);
         Route::post('notification/read', [NotificationController::class, 'updateNotification']);
+
+        # Заблокировать пользователя
+        Route::post('request-for-block-user', [UserController::class, 'requestForBlockUser']);
     });
 });
 

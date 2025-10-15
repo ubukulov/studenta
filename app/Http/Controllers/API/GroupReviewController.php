@@ -5,17 +5,20 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\GroupReview;
 use App\Models\GroupReviewReport;
+use App\Models\RequestUserBlock;
 use Illuminate\Http\Request;
 
 class GroupReviewController extends BaseApiController
 {
     public function getGroupReviews($groupId): \Illuminate\Http\JsonResponse
     {
+        $blockUserIds = RequestUserBlock::where(['request_user_id' => $this->user->id])->pluck('block_user_id')->toArray();
         $groupReviews = GroupReview::where([
             'group_id' => $groupId, //'user_id' => $this->user->id
             'status' => 'active'
         ])
             ->with('user.profileWithAvatar.avatarImage', 'group')
+            ->whereNotIn('user_id', $blockUserIds)
             ->orderBy('created_at', 'desc')
             ->get();
 

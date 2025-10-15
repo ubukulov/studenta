@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\ImageUpload;
+use App\Models\RequestUserBlock;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
@@ -190,6 +191,50 @@ class UserController extends BaseApiController
             }
 
             return response()->json('Не найдено фото с таким ид', 404, [], JSON_UNESCAPED_UNICODE);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    public function requestForBlockUser(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'block_user_id' => 'required'
+            ]);
+
+            $block_user_id = $request->get('block_user_id');
+            if (RequestUserBlock::where(['block_user_id' => $block_user_id, 'request_user_id' => $this->user->id])->exists()) {
+                return response()->json('Заявка на блокировку пользователя подано ранее', 400, [], JSON_UNESCAPED_UNICODE);
+            }
+
+            RequestUserBlock::create([
+                'block_user_id' => $block_user_id, 'request_user_id' => $this->user->id
+            ]);
+
+            return response()->json('Заявка на блокировку пользователя принять успешно', 200, [], JSON_UNESCAPED_UNICODE);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    public function updateDeviceToken(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'device_token' => 'required|string',
+            ]);
+
+            $user = $this->user;
+
+            if ($user->device_token !== $request->device_token) {
+                $user->update([
+                    'device_token' => $request->device_token,
+                ]);
+            }
+
+            return response()->json(['message' => 'Device token updated']);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
         }

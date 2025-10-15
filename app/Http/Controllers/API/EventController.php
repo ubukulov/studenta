@@ -14,10 +14,14 @@ class EventController extends BaseApiController
 {
     public function events(Request $request): \Illuminate\Http\JsonResponse
     {
+        $userId = $this->user->id;
         $query = Event::with('user', 'group', 'image')
             ->selectRaw('events.*, event_participants.status')
-            ->leftJoin('event_participants', 'events.id', '=', 'event_participants.event_id')
-            ->whereDate('events.end_date', '>=', date('Y-m-d'));
+            ->leftJoin('event_participants', function ($join) use ($userId) {
+                $join->on('events.id', '=', 'event_participants.event_id')
+                    ->where('event_participants.user_id', '=', $userId);
+            })
+            ->whereDate('events.end_date', '>=', now()->toDateString());
 
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
@@ -123,11 +127,11 @@ class EventController extends BaseApiController
 
             if($event->type == 'free') {
 
-                Notification::create([
+                /*Notification::create([
                     'user_id' => $this->user->id, 'type' => 'events', 'message' => "Вы успешно подписаны на ивент"
-                ]);
+                ]);*/
 
-                $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Вы успешно подписаны на ивент", ['type' => 'events']);
+                //$this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Вы успешно подписаны на ивент", ['type' => 'events']);
 
                 DB::commit();
                 return response()->json('Вы успешно подписаны на ивент', 200, [], JSON_UNESCAPED_UNICODE);
@@ -136,7 +140,7 @@ class EventController extends BaseApiController
                     'user_id' => $this->user->id, 'type' => 'events', 'message' => "Ждите подтверждение от модератора"
                 ]);
 
-                $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Ждите подтверждение от модератора", ['type' => 'events']);
+                //$this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Ждите подтверждение от модератора", ['type' => 'events']);
 
                 DB::commit();
 
@@ -174,6 +178,7 @@ class EventController extends BaseApiController
             ->selectRaw('events.*, event_participants.status')
             ->join('event_participants', 'events.id', '=', 'event_participants.event_id')
             ->where('event_participants.user_id', $this->user->id)
+            ->whereDate('events.end_date', '>=', date('Y-m-d'))
             ->get();
         return response()->json($events);
     }
