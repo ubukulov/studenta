@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\PushNotificationJob;
 use App\Models\Event;
 use App\Models\EventParticipant;
+use App\Models\GroupParticipant;
 use App\Models\Notification;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -53,6 +56,8 @@ class EventController extends BaseApiController
 
     public function store(Request $request): \Illuminate\Http\JsonResponse
     {
+        DB::beginTransaction();
+
         try {
             $request->validate([
                 'group_id' => 'required',
@@ -65,10 +70,54 @@ class EventController extends BaseApiController
             $data['start_date'] = $data['date'] . " " . $data['start'];
             $data['end_date']   = $data['date'] . " " . $data['end'];
 
-            Event::create($data);
+            $event = Event::create($data);
+            $group = $event->group;
 
+            // Кто подписан в группу, для всех отправляем push уведомление о создание новый ивент
+            $subscribes = GroupParticipant::where(['group_id' => $event->group_id])
+                ->pluck('user_id')
+                ->toArray();
+
+            $users = User::select('id', 'device_token')
+                ->whereIn('id', $subscribes)
+                ->whereNotNull('device_token')
+                ->get();
+
+            $notifications = [];
+            $tokens = [];
+
+            $notificationType = ($group->slug == 'studenta' && $group->type == 'admin') ? 'announcements' : 'events';
+
+            foreach ($users as $user) {
+                $notifications[] = [
+                    'user_id' => $user->id,
+                    'type' => $notificationType,
+                    'title' => $event->name,
+                    'message' => "Создан новый ивент",
+                    'status'  => 'new',
+                    'model_id' => $event->id,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
+
+                $tokens[] = $user->device_token;
+            }
+
+            Notification::insert($notifications);
+
+            if (!empty($tokens)) {
+                PushNotificationJob::dispatch(
+                    $tokens,
+                    $event->name,
+                    "Создан новый ивент",
+                    ['type' => $notificationType, 'id' => (string) $event->id],
+                );
+            }
+
+            DB::commit();
             return response()->json('Event успешно создан', 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return response()->json($e->validator->errors(), 422, [], JSON_UNESCAPED_UNICODE);
         }
     }
@@ -117,6 +166,7 @@ class EventController extends BaseApiController
         try {
             $event_id = $request->input('event_id');
             $event = Event::findOrFail($event_id);
+            $user = $event->user;
 
             if(EventParticipant::userSubscribed($event_id, $this->user->id)) {
                 DB::commit();
@@ -140,7 +190,14 @@ class EventController extends BaseApiController
                     'user_id' => $this->user->id, 'type' => 'events', 'message' => "Ждите подтверждение от модератора"
                 ]);
 
-                //$this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Ждите подтверждение от модератора", ['type' => 'events']);
+                // отправляем пуш пользователю
+                $this->firebase->sendNotification($this->user->device_token, 'Новое уведомление', "Ждите подтверждение от модератора", ['type' => 'events']);
+
+                Notification::create([
+                    'user_id' => $user->id, 'type' => 'events', 'message' => "Пользователь отправил запрос на подписку на ваш ивент. Не забудьте подтвердить"
+                ]);
+                // отправляем пуш к владелцу ивента
+                $this->firebase->sendNotification($user->device_token, 'Новое уведомление', "Пользователь отправил запрос на подписку на ваш ивент. Не забудьте подтвердить", ['type' => 'events']);
 
                 DB::commit();
 
@@ -189,6 +246,7 @@ class EventController extends BaseApiController
             ->where('user_id', $this->user->id)
             ->whereDate('end_date', '>=', date('Y-m-d'))
             ->get();
+
         return response()->json($events);
     }
 
@@ -211,6 +269,8 @@ class EventController extends BaseApiController
             }
 
             $event_participant = EventParticipant::where(['event_id' => $event_id, 'user_id' => $user_id])->first();
+            $user = $event_participant->user;
+
             if($event_participant) {
                 if($event_participant->status == 'confirmed') {
                     return response()->json("Вы уже подтверждили подписку", 409, [], JSON_UNESCAPED_UNICODE);
@@ -221,8 +281,16 @@ class EventController extends BaseApiController
                     $event_participant->save();
 
                     if($status == 'rejected') {
+                        $this->firebase->sendNotification($user->device_token, 'Новое уведомление', "Модератор отклонил ваш запрос", ['type' => 'events']);
+                        Notification::create([
+                            'user_id' => $user->id, 'type' => 'events', 'message' => "Модератор отклонил ваш запрос"
+                        ]);
                         return response()->json("Вы отклонили подписку успешно", 200, [], JSON_UNESCAPED_UNICODE);
                     } else {
+                        $this->firebase->sendNotification($user->device_token, 'Новое уведомление', "Модератор подтвердил. Вы участвуйте в ивенте", ['type' => 'events']);
+                        Notification::create([
+                            'user_id' => $user->id, 'type' => 'events', 'message' => "Модератор подтвердил. Вы участвуйте в ивенте"
+                        ]);
                         return response()->json("Вы подтвердили подписку успешно", 200, [], JSON_UNESCAPED_UNICODE);
                     }
                 }

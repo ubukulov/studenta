@@ -6,6 +6,7 @@ use App\Filament\Resources\UniversityResource\Pages;
 use App\Filament\Resources\UniversityResource\RelationManagers;
 use App\Models\University;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
@@ -26,6 +27,10 @@ class UniversityResource extends Resource
     {
         return $form
             ->schema([
+                Select::make('city_id')
+                    ->relationship('city', 'name') // Нужно чтобы в Event была связь group()
+                    ->required()
+                    ->label('Город'),
                 Forms\Components\TextInput::make('name'),
                 Forms\Components\TextInput::make('legal_address'),
                 Forms\Components\TextInput::make('email')->email(),

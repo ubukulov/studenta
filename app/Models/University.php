@@ -15,7 +15,7 @@ class University extends Model
         'name', 'city_id', 'legal_address', 'email', 'year_of_foundation', 'director', 'contacts'
     ];
 
-    public function city()
+    public function city(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(City::class);
     }

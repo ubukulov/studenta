@@ -18,6 +18,7 @@ class CreateTableGroups extends Migration
             $table->unsignedBigInteger('user_id');
 //            $table->unsignedBigInteger('category_id');
             $table->string('name')->nullable();
+            $table->string('slug')->nullable();
             $table->text('description')->nullable();
             $table->string('instagram')->nullable();
             $table->string('whatsapp')->nullable();

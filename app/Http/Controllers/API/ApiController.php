@@ -121,9 +121,15 @@ class ApiController extends Controller
         return response()->json(City::all());
     }
 
-    public function universities(): \Illuminate\Http\JsonResponse
+    public function universities(Request $request): \Illuminate\Http\JsonResponse
     {
-        return response()->json(University::all());
+        $query = University::with('city');
+        if ($request->has('city_id') && !empty($request->city_id)) {
+            $query = $query->where('city_id', $request->city_id);
+        }
+        $universities = $query->get();
+
+        return response()->json($universities);
     }
 
     public function specialities(): \Illuminate\Http\JsonResponse

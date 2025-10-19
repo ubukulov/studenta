@@ -4,13 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class Group extends Model
 {
-    use HasFactory;
+    use HasFactory, HasSlug;
 
     protected $fillable = [
-        'user_id', 'category_id', 'image_id', 'name', 'description', 'instagram', 'whatsapp', 'telegram', 'type'
+        'user_id', 'category_id', 'image_id', 'name', 'slug', 'description', 'instagram', 'whatsapp', 'telegram', 'type'
     ];
 
     protected $dates = [
@@ -58,5 +60,15 @@ class Group extends Model
     public static function unSubscribe($group_participant)
     {
         $group_participant->delete();
+    }
+
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug');
     }
 }
