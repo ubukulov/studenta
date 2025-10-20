@@ -12,6 +12,11 @@ class Speciality extends Model
     protected $table = 'specialities';
 
     protected $fillable = [
-        'name'
+        'name', 'university_id', 'code'
     ];
+
+    public function university(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(University::class);
+    }
 }

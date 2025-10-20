@@ -16,7 +16,14 @@ class CreateTableSpecialities extends Migration
         Schema::create('specialities', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->unsignedBigInteger('university_id')->nullable();
+            $table->string('code', 100)->nullable();
             $table->timestamps();
+
+            $table->foreign('university_id')
+                ->references('id')
+                ->on('universities')
+                ->onDelete('cascade');
         });
     }
 

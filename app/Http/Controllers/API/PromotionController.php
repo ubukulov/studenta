@@ -93,16 +93,41 @@ class PromotionController extends BaseApiController
 
     public function getPromotionById($id): \Illuminate\Http\JsonResponse
     {
-        $promotion = Promotion::with('category', 'organization', 'images')
+        $promotion = Promotion::with('category', 'organization')
             ->findOrFail($id);
-        foreach($promotion->images as $image){
-            if(!is_null($image->image)){
-                $image->image = Storage::disk('public')->url($image->image);
+        $promotionImages = PromotionImage::where('promotion_id', $id)->get();
+        $arr = [];
+        foreach($promotionImages as $image) {
+            if(!is_null($image->video)) {
+                $arr[] = [
+                    'video' => Storage::disk('public')->url($image->video),
+                    'image' => null
+                ];
             }
-            if(!is_null($image->video)){
-                $image->video = Storage::disk('public')->url($image->video);
+
+            if(!is_null($image->image) && !is_null($image->video)) {
+                $arr[] = [
+                    'video' => null,
+                    'image' => Storage::disk('public')->url($image->image)
+                ];
+            }
+
+            if (!is_null($image->image) && is_null($image->video)) {
+                $arr[] = [
+                    'video' => null,
+                    'image' => Storage::disk('public')->url($image->image)
+                ];
             }
         }
+
+
+        $promotion->images = collect($arr)
+            ->sortByDesc(function ($item) {
+                return $item['video'] !== null;
+            })
+            ->values()
+            ->toArray();
+
         return response()->json($promotion);
     }
 

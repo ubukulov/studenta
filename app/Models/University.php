@@ -19,4 +19,9 @@ class University extends Model
     {
         return $this->belongsTo(City::class);
     }
+
+    public function specialities(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Speciality::class);
+    }
 }

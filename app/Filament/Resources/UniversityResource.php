@@ -13,6 +13,7 @@ use Filament\Resources\Table;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\UniversityResource\RelationManagers\SpecialitiesRelationManager;
 
 class UniversityResource extends Resource
 {
@@ -22,6 +23,13 @@ class UniversityResource extends Resource
 
     protected static ?string $navigationGroup = 'Справочники';
     protected static ?string $navigationLabel = 'Универы';
+
+    public static function getRelations(): array
+    {
+        return [
+            SpecialitiesRelationManager::class,
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -55,13 +63,6 @@ class UniversityResource extends Resource
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

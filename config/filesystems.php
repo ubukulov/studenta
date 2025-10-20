@@ -53,6 +53,12 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
         ],
 
+        'uploads_public' => [
+            'driver' => 'local',
+            'root' => public_path(), // напрямую в /public
+            'url' => env('APP_URL'),
+            'visibility' => 'public',
+        ],
     ],
 
     /*

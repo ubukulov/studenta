@@ -34,6 +34,11 @@ class Event extends Model
         return $this->belongsTo(ImageUpload::class);
     }
 
+    public function imageUpload()
+    {
+        return $this->belongsTo(ImageUpload::class, 'image_id');
+    }
+
     public function subscribes()
     {
         return $this->hasMany(EventParticipant::class);

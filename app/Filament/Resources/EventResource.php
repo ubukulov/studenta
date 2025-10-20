@@ -7,6 +7,8 @@ use App\Filament\Resources\EventResource\RelationManagers;
 use App\Models\Event;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\View;
@@ -18,6 +20,7 @@ use App\Models\ImageUpload;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\ImageColumn;
 
 class EventResource extends Resource
 {
@@ -89,39 +92,78 @@ class EventResource extends Resource
                 Forms\Components\TextInput::make('kaspi_name')
                     ->label('Kaspi Имя'),
 
-                Select::make('image_id')
-                    ->label('Изображение')
-                    ->options(
-                        ImageUpload::all()
-                            ->filter(fn ($item) => filled($item->image)) // исключаем null/пустые
-                            ->mapWithKeys(fn ($item) => [
-                                $item->id => (string) $item->image,
-                            ])
-                            ->toArray()
-                    )
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-
-                TextInput::make('image_preview')
-                    ->label('Превью изображения')
-                    ->disabled() // делаем поле не редактируемым
-                    ->default(function (callable $get) {
-                        $imageId = $get('image_id');
-
-                        if (!$imageId) {
-                            return 'Картинка не выбрана';
+                FileUpload::make('upload_image')
+                    ->label('Загрузить изображение')
+                    ->image()
+                    ->multiple(false)
+                    ->preserveFilenames()
+                    ->imagePreviewHeight('200')
+                    ->directory('events/images')   // где Filament будет сохранять новые загрузки
+                    ->disk('public')               // куда сохранять новые файлы (можешь поменять)
+                    // --- гидрация: передаём в компонент именно то, что в БД (массив)
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        if (! $record || ! $record->imageUpload) {
+                            return;
                         }
 
-                        $image = ImageUpload::find($imageId);
+                        // $img может быть:
+                        // - полный URL: http://domain/upload/images/xxx.jpg
+                        // - полный URL: http://domain/storage/events/images/xxx.jpg
+                        // - относительный путь: upload/images/xxx.jpg
+                        // - относительный путь: events/images/xxx.jpg
+                        $img = $record->imageUpload->image;
 
-                        if (!$image) {
-                            return 'Картинка не найдена';
-                        }
-
-                        return asset('storage/' . $image->image); // Показываем путь к картинке как текст
+                        // всегда передаём массив (Filament ожидает array for file state)
+                        $component->state([$img]);
                     })
-                    ->visible(fn (callable $get) => filled($get('image_id')))
+                    // --- как FileUpload получает URL для предпросмотра
+                    ->getUploadedFileUrlUsing(function ($state) {
+                        if (! $state) {
+                            return null;
+                        }
+
+                        // если state - массив (редкий случай), берём первый элемент
+                        if (is_array($state)) {
+                            $state = $state[0] ?? null;
+                            if (! $state) return null;
+                        }
+
+                        // 1) если это абсолютный URL — возвращаем его как есть
+                        if (preg_match('#^https?://#', $state)) {
+                            return $state;
+                        }
+
+                        // 2) если начинается с '/storage/' (админские записи типа http://host/storage/...)
+                        if (str_starts_with($state, '/storage/')) {
+                            return url($state); // -> http://host/storage/...
+                        }
+
+                        // 3) если начинается с 'storage/' (без ведущего слеша)
+                        if (str_starts_with($state, 'storage/')) {
+                            return url('/' . $state);
+                        }
+
+                        // 4) если начинается с '/upload/' или 'upload/' — файлы в public/upload
+                        if (str_starts_with($state, '/upload/')) {
+                            return url($state);
+                        }
+                        if (str_starts_with($state, 'upload/')) {
+                            return url('/' . $state);
+                        }
+
+                        // 5) иначе — предполагаем, что это путь относительно диска 'public' (storage/app/public)
+                        //      и используем Storage::disk('public')->url(...)
+                        return \Storage::disk('public')->url($state);
+                    })
+                    // --- при сохранении: из массива вернуть строку (первый элемент)
+                    ->dehydrateStateUsing(function ($state) {
+                        if (is_array($state)) {
+                            return $state[0] ?? null;
+                        }
+                        return $state;
+                    }),
+
+                Hidden::make('image_id'),
             ]);
     }
 
@@ -129,6 +171,9 @@ class EventResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('imageUpload.image') // если связь event -> imageUpload
+                    ->label('Фото')
+                    ->circular(),
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('user.name')->label('Пользователь'),
                 Tables\Columns\TextColumn::make('group.name')->label('Группа'),
