@@ -44,12 +44,39 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('id')->sortable(),
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('email')->searchable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Статус')
+                    ->formatStateUsing(function ($state) {
+                        return match ($state) {
+                            'pending' => '🕒 В ожидании',
+                            'confirmed' => '✅ Подтверждена',
+                            'blocked' => '❌ Блокирован',
+                            default => $state,
+                        };
+                    }),
                 Tables\Columns\TextColumn::make('created_at')->dateTime(),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('confirmed')
+                    ->label('Подтвердить')
+                    ->button()
+                    ->color('success')
+                    ->visible(fn($record) => $record->status === 'pending')
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        $record->update(['status' => 'confirmed']);
+                    }),
+
+                Tables\Actions\Action::make('blocked')
+                    ->label('Блокировать')
+                    ->button()
+                    ->color('danger')
+                    ->visible(fn($record) => $record->status === 'pending')
+                    ->requiresConfirmation()
+                    ->action(fn($record) => $record->update(['status' => 'blocked'])),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

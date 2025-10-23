@@ -7,6 +7,7 @@ use App\Jobs\PushNotificationJob;
 use App\Models\Event;
 use App\Models\EventParticipant;
 use App\Models\GroupParticipant;
+use App\Models\ImageUpload;
 use App\Models\Notification;
 use App\Models\User;
 use Carbon\Carbon;
@@ -240,12 +241,17 @@ class EventController extends BaseApiController
         return response()->json($events);
     }
 
-    public function getMyEvents(): \Illuminate\Http\JsonResponse
+    public function getMyEvents(Request $request): \Illuminate\Http\JsonResponse
     {
-        $events = Event::with('user', 'group', 'image')
+        $query = Event::with('user', 'group', 'image')
             ->where('user_id', $this->user->id)
-            ->whereDate('end_date', '>=', date('Y-m-d'))
-            ->get();
+            ->whereDate('end_date', '>=', date('Y-m-d'));
+
+        if ($request->has('group_id') && !empty($request->group_id)) {
+            $query = $query->where('group_id', $request->group_id);
+        }
+
+        $events = $query->get();
 
         return response()->json($events);
     }
@@ -373,5 +379,25 @@ class EventController extends BaseApiController
             ->where('event_participants.status', '=', 'confirmed')
             ->paginate(50);
         return response()->json($events);
+    }
+
+    public function getEventParticipants($eventId): \Illuminate\Http\JsonResponse
+    {
+        $event = Event::findOrFail($eventId);
+
+        foreach($event->subscribes as $participant) {
+            $participantUser = User::find($participant->user_id);
+            $user_profile = $participantUser->profile;
+            $university = $user_profile->university;
+            $user_profile['university_name'] = $university->name;
+            $image = ImageUpload::find($user_profile->avatar);
+            $user_profile->avatar_image = $image->image ?? null;
+            $participantUser['avatar'] = $image->image ?? null;
+            $participant->setRelation('user', $participantUser);
+        }
+
+
+
+        return response()->json($event->subscribes);
     }
 }

@@ -78,6 +78,7 @@ Route::group(['prefix' => 'v1', 'namespace' => 'API'], function(){
         Route::get('{event_id}/get-requests-for-subscribe', [EventController::class, 'getRequestsForSubscribe']);
         Route::get('get-list-of-events-where-sent-requests', [EventController::class, 'getListOfEventsWhereSentRequests']);
         Route::get('history-of-events', [EventController::class, 'historyOfEvents']);
+        Route::get('event/{id}/get-participants', [EventController::class, 'getEventParticipants']);
 
         # Настройки профиля
         Route::get('get-profile', [UserController::class, 'getProfile']);
